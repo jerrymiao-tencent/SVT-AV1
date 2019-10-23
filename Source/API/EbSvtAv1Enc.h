@@ -237,6 +237,93 @@ typedef struct EbSvtAv1EncConfiguration
     * Default is -1. */
     int                   enable_restoration_filtering;
 
+    /* edge based skip angle intra
+    *
+    * Default is -1. */
+    int                      edge_skp_angle_intra;
+
+    /* inter intra compound
+    *
+    * Default is -1. */
+    int                      inter_intra_compound;
+
+    /* fractional search 64
+    *
+    * Default is -1. */
+    int                      fract_search_64;
+
+    /* atb mode
+    *
+    * Default is -1. */
+    int                      enable_atb;
+
+    /* cdf mode
+    *
+    * Default is -1. */
+    int                      enable_cdf;
+
+    /* combine class 12
+    *
+    * Default is -1. */
+    int                      combine_class_12;
+
+    /* motion field motion vector
+    *
+    *  Default is -1. */
+    int                   enable_mfmv;
+    /* quantize fp
+    *
+    * Default is -1. */
+    int                   quant_fp;
+    /* redundant block
+    *
+    * Default is -1. */
+    int                   enable_redundant_blk;
+    /* trellis quant coeff optimization
+    *
+    * Default is -1. */
+    int                   enable_trellis;
+    /* spatial sse in full loop
+    *
+    * Default is -1. */
+    int                   spatial_sse_fl;
+    /* update cdf
+    *
+    * Default is -1. */
+    int                   update_cdf;
+    /* subpel
+    *
+    * Default is -1. */
+    int                   enable_subpel;
+    /* over boundry block
+    *
+    * Default is -1. */
+    int                   over_bndry_blk;
+    /* new nearest comb injection
+    *
+    * Default is -1. */
+    int                   new_nearest_comb_inject;
+    /* nx4 4xn parent motion vector injection
+    *
+    * Default is -1. */
+    int                   nx4_4xn_parent_mv_inject;
+    /* prune unipred at me
+    *
+    * Default is -1. */
+    int                   prune_unipred_me;
+    /* prune ref frame for rec partitions
+    *
+    * Default is -1. */
+    int                   prune_ref_rec_part;
+    /* nsq table
+    *
+    * Default is -1. */
+    int                   nsq_table;
+    /* frame end cdf update
+    *
+    * Default is -1. */
+    int                   frame_end_cdf_update;
+
     /* OBMC
     *
     * Default is 1. */
