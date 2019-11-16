@@ -1611,10 +1611,13 @@ int32_t av1_quantize_inv_quantize(
 #endif
 
     SequenceControlSet *sequence_control_set_ptr = (SequenceControlSet*)picture_control_set_ptr->sequence_control_set_wrapper_ptr->object_ptr;
-    perform_rdoq = perform_rdoq && (EbBool) sequence_control_set_ptr->static_config.enable_rdoq;
-    if (sequence_control_set_ptr->static_config.encoder_bit_depth > 8
-        && picture_control_set_ptr->hbd_mode_decision==0 )
-        perform_rdoq = EB_FALSE;
+    if (sequence_control_set_ptr->static_config.enable_rdoq == AUTO_MODE) {
+        perform_rdoq = perform_rdoq && (EbBool) sequence_control_set_ptr->static_config.enable_rdoq;
+        if (sequence_control_set_ptr->static_config.encoder_bit_depth > 8
+            && picture_control_set_ptr->hbd_mode_decision==0 )
+            perform_rdoq = EB_FALSE;
+    } else
+        perform_rdoq = (EbBool)sequence_control_set_ptr->static_config.enable_rdoq;
 
     // Hsan: set to FALSE until adding x86 quantize_fp
     EbBool perform_quantize_fp = picture_control_set_ptr->enc_mode == ENC_M0 ? EB_TRUE: EB_FALSE;
