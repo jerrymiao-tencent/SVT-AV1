@@ -341,7 +341,7 @@ static void SetMDS2_PRUNE_S_TH(const char *value, EbConfig *cfg) {
         cfg->md_stage_2_cand_prune_th = (uint64_t)~0;
 }
 
-static void SetEnableAutomaxPartition           (const char *value, EbConfig *cfg) { cfg->enable_auto_max_partition = (uint8_t)strtol(value, NULL, 0); };
+static void set_enable_auto_max_partition           (const char *value, EbConfig *cfg) { cfg->enable_auto_max_partition = (uint8_t)strtol(value, NULL, 0); };
 
 enum cfg_type{
     SINGLE_INPUT,   // Configuration parameters that have only 1 value input
@@ -478,7 +478,7 @@ config_entry_t config_entry[] = {
     // --- end: ALTREF_FILTERING_SUPPORT
 
     { SINGLE_INPUT, SQ_WEIGHT_TOKEN, "SquareWeight", SetSquareWeight },
-    { SINGLE_INPUT, ENABLE_AMP_TOKEN, "AutomaxPartition", SetEnableAutomaxPartition },
+    { SINGLE_INPUT, ENABLE_AMP_TOKEN, "AutomaxPartition", set_enable_auto_max_partition },
 
     { SINGLE_INPUT, MDS1_PRUNE_C_TH, "MDStage1PruneClassThreshold", SetMDS1_PRUNE_C_TH },
     { SINGLE_INPUT, MDS1_PRUNE_S_TH, "MDStage1PruneCandThreshold", SetMDS1_PRUNE_S_TH },
