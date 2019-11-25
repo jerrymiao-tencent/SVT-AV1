@@ -309,27 +309,8 @@ void setup_rtcd_internal(EbAsm asm_type)
     eb_av1_convolve_2d_copy_sr = eb_av1_convolve_2d_copy_sr_c;
     if (flags & HAS_AVX2) eb_av1_convolve_2d_copy_sr = eb_av1_convolve_2d_copy_sr_avx2;
 
-    eb_av1_convolve_2d_sr = eb_av1_convolve_2d_sr_c;
-    if (flags & HAS_AVX2) eb_av1_convolve_2d_sr = eb_av1_convolve_2d_sr_avx2;
-
-    eb_av1_jnt_convolve_2d_copy = eb_av1_jnt_convolve_2d_copy_c;
-    if (flags & HAS_AVX2) eb_av1_jnt_convolve_2d_copy = eb_av1_jnt_convolve_2d_copy_avx2;
-
-    eb_av1_convolve_x_sr = eb_av1_convolve_x_sr_c;
-    if (flags & HAS_AVX2) eb_av1_convolve_x_sr = eb_av1_convolve_x_sr_avx2;
-    eb_av1_convolve_y_sr = eb_av1_convolve_y_sr_c;
-    if (flags & HAS_AVX2) eb_av1_convolve_y_sr = eb_av1_convolve_y_sr_avx2;
-
     eb_av1_convolve_2d_scale = eb_av1_convolve_2d_scale_c;
     //if (flags & HAS_SSE4_1) eb_av1_convolve_2d_scale = eb_av1_convolve_2d_scale_sse4_1;
-
-    eb_av1_jnt_convolve_x = eb_av1_jnt_convolve_x_c;
-    if (flags & HAS_AVX2) eb_av1_jnt_convolve_x = eb_av1_jnt_convolve_x_avx2;
-    eb_av1_jnt_convolve_y = eb_av1_jnt_convolve_y_c;
-    if (flags & HAS_AVX2) eb_av1_jnt_convolve_y = eb_av1_jnt_convolve_y_avx2;
-
-    eb_av1_jnt_convolve_2d = eb_av1_jnt_convolve_2d_c;
-    if (flags & HAS_AVX2) eb_av1_jnt_convolve_2d = eb_av1_jnt_convolve_2d_avx2;
 
     eb_aom_quantize_b = eb_aom_quantize_b_c_II;
     if (flags & HAS_AVX2) eb_aom_quantize_b = eb_aom_quantize_b_avx2;
@@ -1733,6 +1714,34 @@ void setup_rtcd_internal(EbAsm asm_type)
     av1_get_gradient_hist = av1_get_gradient_hist_c;
     if (flags & HAS_AVX2) av1_get_gradient_hist = av1_get_gradient_hist_avx2;
 
+    SET_AVX2_AVX512(eb_av1_convolve_2d_sr,
+                    eb_av1_convolve_2d_sr_c,
+                    eb_av1_convolve_2d_sr_avx2,
+                    eb_av1_convolve_2d_sr_avx512);
+    SET_AVX2_AVX512(eb_av1_convolve_x_sr,
+                    eb_av1_convolve_x_sr_c,
+                    eb_av1_convolve_x_sr_avx2,
+                    eb_av1_convolve_x_sr_avx512);
+    SET_AVX2_AVX512(eb_av1_convolve_y_sr,
+                    eb_av1_convolve_y_sr_c,
+                    eb_av1_convolve_y_sr_avx2,
+                    eb_av1_convolve_y_sr_avx512);
+    SET_AVX2_AVX512(eb_av1_jnt_convolve_2d,
+                    eb_av1_jnt_convolve_2d_c,
+                    eb_av1_jnt_convolve_2d_avx2,
+                    eb_av1_jnt_convolve_2d_avx512);
+    SET_AVX2_AVX512(eb_av1_jnt_convolve_2d_copy,
+                    eb_av1_jnt_convolve_2d_copy_c,
+                    eb_av1_jnt_convolve_2d_copy_avx2,
+                    eb_av1_jnt_convolve_2d_copy_avx512);
+    SET_AVX2_AVX512(eb_av1_jnt_convolve_x,
+                    eb_av1_jnt_convolve_x_c,
+                    eb_av1_jnt_convolve_x_avx2,
+                    eb_av1_jnt_convolve_x_avx512);
+    SET_AVX2_AVX512(eb_av1_jnt_convolve_y,
+                    eb_av1_jnt_convolve_y_c,
+                    eb_av1_jnt_convolve_y_avx2,
+                    eb_av1_jnt_convolve_y_avx512);
     SET_AVX2_AVX512(search_one_dual,
                     search_one_dual_c,
                     search_one_dual_avx2,
