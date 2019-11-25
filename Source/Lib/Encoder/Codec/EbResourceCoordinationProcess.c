@@ -122,6 +122,11 @@ EbErrorType signal_derivation_pre_analysis_oq(
     else
         sequence_control_set_ptr->seq_header.enable_restoration = (uint8_t)sequence_control_set_ptr->static_config.enable_restoration_filtering;
 
+    if (sequence_control_set_ptr->static_config.enable_cdef == AUTO_MODE)
+        sequence_control_set_ptr->seq_header.enable_cdef = 1;
+    else
+        sequence_control_set_ptr->seq_header.enable_cdef = sequence_control_set_ptr->static_config.enable_cdef;
+
     if (sequence_control_set_ptr->static_config.enable_cdf == AUTO_MODE)
         sequence_control_set_ptr->cdf_mode = (picture_control_set_ptr->enc_mode <= ENC_M6) ? 0 : 1;
     else

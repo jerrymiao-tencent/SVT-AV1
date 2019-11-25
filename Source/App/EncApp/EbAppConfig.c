@@ -66,6 +66,7 @@
 #define INTRA_REFRESH_TYPE_TOKEN        "-irefresh-type" // no Eval
 #define LOOP_FILTER_DISABLE_TOKEN       "-dlf"
 #define RESTORATION_ENABLE_TOKEN        "-restoration-filtering"
+#define CDEF_ENABLE_TOKEN               "-cdef"
 #define ATB_ENABLE_TOKEN                "-atb"
 #define CDF_ENABLE_TOKEN                "-cdf"
 #define CLASS_12_TOKEN                  "-class-12"
@@ -274,6 +275,7 @@ static void SetDisableDlfFlag                   (const char *value, EbConfig *cf
 static void SetEnableLocalWarpedMotionFlag      (const char *value, EbConfig *cfg) {cfg->enable_warped_motion = (EbBool)strtoul(value, NULL, 0);};
 static void SetEnableGlobalMotionFlag           (const char *value, EbConfig *cfg) {cfg->enable_global_motion = (EbBool)strtoul(value, NULL, 0);};
 static void SetEnableRestorationFilterFlag      (const char *value, EbConfig *cfg) {cfg->enable_restoration_filtering = strtol(value, NULL, 0);};
+static void SetEnableCdefFlag                   (const char *value, EbConfig *cfg) {cfg->enable_cdef = strtol(value, NULL, 0);};
 static void SetEnableAtbFlag                    (const char *value, EbConfig *cfg) {cfg->enable_atb = strtol(value, NULL, 0);};
 static void SetEnableCdfFlag                    (const char *value, EbConfig *cfg) {cfg->enable_cdf = strtol(value, NULL, 0);};
 static void SetClass12Flag                      (const char *value, EbConfig *cfg) {cfg->combine_class_12 = strtol(value, NULL, 0);};
@@ -466,6 +468,9 @@ config_entry_t config_entry[] = {
     // RESTORATION
     { SINGLE_INPUT, RESTORATION_ENABLE_TOKEN, "RestorationFilter", SetEnableRestorationFilterFlag },
 
+    // CDEF
+    { SINGLE_INPUT, CDEF_ENABLE_TOKEN, "CDEF", SetEnableCdefFlag },
+
     { SINGLE_INPUT, MFMV_ENABLE_TOKEN             , "Mfmv", SetEnableMfmvFlag           },
     { SINGLE_INPUT, QUANT_FP_TOKEN                , "QuantFp", SetQuantFpFlag              },
     { SINGLE_INPUT, REDUNDANT_BLK_TOKEN           , "RedundantBlock", SetEnableRedundantBlkFlag   },
@@ -614,6 +619,7 @@ void eb_config_ctor(EbConfig *config_ptr)
     config_ptr->pred_structure                        = 2;
     config_ptr->enable_global_motion                 = EB_TRUE;
     config_ptr->enable_restoration_filtering         = AUTO_MODE;
+    config_ptr->enable_cdef                          = AUTO_MODE;
     config_ptr->enable_atb                           = AUTO_MODE;
     config_ptr->enable_cdf                           = AUTO_MODE;
     config_ptr->combine_class_12                     = AUTO_MODE;
@@ -1017,6 +1023,12 @@ static EbErrorType VerifySettings(EbConfig *config, uint32_t channelNumber)
      // Restoration Filtering
      if (config->enable_restoration_filtering != 0 && config->enable_restoration_filtering != 1 && config->enable_restoration_filtering != -1) {
          fprintf(config->error_log_file, "Error instance %u: Invalid restoration flag [0 - 1, -1 for auto], your input: %d\n", channelNumber + 1, config->enable_restoration_filtering);
+         return_error = EB_ErrorBadParameter;
+     }
+
+     // CDEF
+     if (config->enable_cdef != 0 && config->enable_cdef != 1 && config->enable_cdef != -1) {
+         fprintf(config->error_log_file, "Error instance %u: Invalid CDEF flag [0 - 1, -1 for auto], your input: %d\n", channelNumber + 1, config->enable_cdef);
          return_error = EB_ErrorBadParameter;
      }
 

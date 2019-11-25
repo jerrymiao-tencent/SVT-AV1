@@ -2118,6 +2118,8 @@ void CopyApiFromApp(
 
     // Restoration filtering
     sequence_control_set_ptr->static_config.enable_restoration_filtering = ((EbSvtAv1EncConfiguration*)pComponentParameterStructure)->enable_restoration_filtering;
+    // CDEF
+    sequence_control_set_ptr->static_config.enable_cdef = ((EbSvtAv1EncConfiguration*)pComponentParameterStructure)->enable_cdef;
 
     // atb mode
     sequence_control_set_ptr->static_config.enable_atb                   = ((EbSvtAv1EncConfiguration*)pComponentParameterStructure)->enable_atb;
@@ -2728,6 +2730,7 @@ EbErrorType eb_svt_enc_init_parameter(
     config_ptr->enable_warped_motion = EB_TRUE;
     config_ptr->enable_global_motion = EB_TRUE;
     config_ptr->enable_restoration_filtering = AUTO_MODE;
+    config_ptr->enable_cdef = AUTO_MODE;
     config_ptr->enable_atb = AUTO_MODE;
     config_ptr->enable_cdf = AUTO_MODE;
     config_ptr->edge_skp_angle_intra = AUTO_MODE;

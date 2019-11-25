@@ -192,6 +192,7 @@ EbErrorType CopyConfigurationParameters(
     callback_data->eb_enc_parameters.enable_warped_motion = (EbBool)config->enable_warped_motion;
     callback_data->eb_enc_parameters.enable_global_motion = (EbBool)config->enable_global_motion;
     callback_data->eb_enc_parameters.enable_restoration_filtering = config->enable_restoration_filtering;
+    callback_data->eb_enc_parameters.enable_cdef = config->enable_cdef;
     callback_data->eb_enc_parameters.enable_atb = config->enable_atb;
     callback_data->eb_enc_parameters.enable_cdf = config->enable_cdf;
     callback_data->eb_enc_parameters.combine_class_12 = config->combine_class_12;

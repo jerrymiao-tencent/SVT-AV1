@@ -257,6 +257,11 @@ typedef struct EbConfig
     int                     enable_restoration_filtering;
 
     /****************************************
+     * CDEF
+    ****************************************/
+    int                     enable_cdef;
+
+    /****************************************
      * atb mode
     ****************************************/
     int                    enable_atb;
