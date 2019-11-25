@@ -81,7 +81,7 @@ extern "C" {
 #define GLOBAL_WARPED_MOTION         1 // Global warped motion detection and insertion
 
 #ifndef NON_AVX512_SUPPORT
-#define NON_AVX512_SUPPORT
+//#define NON_AVX512_SUPPORT
 #endif
 
 #define MR_MODE                           0
