@@ -14,6 +14,16 @@
 #include "synonyms.h"
 #include "synonyms_avx2.h"
 
+static INLINE __m512i eb_mm512_broadcast_i64x2(const __m128i v) {
+#ifdef _WIN32
+    // Work around of Visual Studio warning C4305: 'function': truncation from
+    // 'int' to '__mmask8'. It's a flaw in header file zmmintrin.h.
+    return _mm512_maskz_broadcast_i64x2((__mmask8)0xffff, v);
+#else
+    return _mm512_broadcast_i64x2(v);
+#endif
+}
+
 static INLINE __m512i _mm512_setr_m256i(const __m256i src0,
     const __m256i src1) {
     return _mm512_inserti64x4(_mm512_castsi256_si512(src0), src1, 1);
@@ -78,7 +88,7 @@ static INLINE void prepare_half_coeffs_4tap_avx512(
     const int16_t *const filter = av1_get_interp_filter_subpel_kernel(
         *filter_params, subpel_q4 & SUBPEL_MASK);
     const __m128i coeffs_8 = _mm_load_si128((__m128i *)filter);
-    const __m512i filter_coeffs = _mm512_broadcast_i64x2(coeffs_8);
+    const __m512i filter_coeffs = eb_mm512_broadcast_i64x2(coeffs_8);
 
     // right shift all filter co-efficients by 1 to reduce the bits required.
     // This extra right shift will be taken care of at the end while rounding
@@ -102,7 +112,7 @@ static INLINE void prepare_half_coeffs_6tap_avx512(
     const int16_t *const filter = av1_get_interp_filter_subpel_kernel(
         *filter_params, subpel_q4 & SUBPEL_MASK);
     const __m128i coeffs_8 = _mm_load_si128((__m128i *)filter);
-    const __m512i filter_coeffs = _mm512_broadcast_i64x2(coeffs_8);
+    const __m512i filter_coeffs = eb_mm512_broadcast_i64x2(coeffs_8);
 
     // right shift all filter co-efficients by 1 to reduce the bits required.
     // This extra right shift will be taken care of at the end while rounding
@@ -128,7 +138,7 @@ SIMD_INLINE void prepare_half_coeffs_8tap_avx512(
     const int16_t *const filter = av1_get_interp_filter_subpel_kernel(
         *filter_params, subpel_q4 & SUBPEL_MASK);
     const __m128i coeffs_8 = _mm_load_si128((__m128i *)filter);
-    const __m512i filter_coeffs = _mm512_broadcast_i64x2(coeffs_8);
+    const __m512i filter_coeffs = eb_mm512_broadcast_i64x2(coeffs_8);
 
     // right shift all filter co-efficients by 1 to reduce the bits required.
     // This extra right shift will be taken care of at the end while rounding
@@ -170,7 +180,7 @@ static INLINE void prepare_coeffs_4tap_avx512(
         *filter_params, subpel_q4 & SUBPEL_MASK);
 
     const __m128i coeff_8 = _mm_load_si128((__m128i *)filter);
-    const __m512i coeff = _mm512_broadcast_i64x2(coeff_8);
+    const __m512i coeff = eb_mm512_broadcast_i64x2(coeff_8);
 
     // coeffs 2 3 2 3 2 3 2 3
     coeffs[0] = _mm512_shuffle_epi32(coeff, 0x55);
@@ -184,7 +194,7 @@ static INLINE void prepare_coeffs_6tap_avx512(
     const int16_t *const filter = av1_get_interp_filter_subpel_kernel(
         *filter_params, subpel_q4 & SUBPEL_MASK);
     const __m128i coeffs_8 = _mm_load_si128((__m128i *)filter);
-    const __m512i coeff = _mm512_broadcast_i64x2(coeffs_8);
+    const __m512i coeff = eb_mm512_broadcast_i64x2(coeffs_8);
 
     // coeffs 1 2 1 2 1 2 1 2
     coeffs[0] = _mm512_shuffle_epi8(coeff, _mm512_set1_epi32(0x05040302u));
@@ -201,7 +211,7 @@ static INLINE void prepare_coeffs_8tap_avx512(
         *filter_params, subpel_q4 & SUBPEL_MASK);
 
     const __m128i coeff_8 = _mm_load_si128((__m128i *)filter);
-    const __m512i coeff = _mm512_broadcast_i64x2(coeff_8);
+    const __m512i coeff = eb_mm512_broadcast_i64x2(coeff_8);
 
     // coeffs 0 1 0 1 0 1 0 1
     coeffs[0] = _mm512_shuffle_epi32(coeff, 0x00);
