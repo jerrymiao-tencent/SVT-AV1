@@ -79,6 +79,7 @@ extern "C" {
 #define PRED_CHANGE_MOD              1 // Reorder the references for MRP
 #define SPEED_OPT                    1 // Speed optimization(s)
 #define GLOBAL_WARPED_MOTION         1 // Global warped motion detection and insertion
+#define GM_OPT                       1
 
 #ifndef NON_AVX512_SUPPORT
 #define NON_AVX512_SUPPORT

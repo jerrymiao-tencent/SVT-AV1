@@ -374,6 +374,14 @@ void SetGlobalMotionField(
     if (parent_pcs_ptr->is_global_motion[get_list_idx(BWDREF_FRAME)][get_ref_frame_idx(BWDREF_FRAME)])
         parent_pcs_ptr->global_motion[BWDREF_FRAME]
             = parent_pcs_ptr->global_motion_estimation[get_list_idx(BWDREF_FRAME)][get_ref_frame_idx(BWDREF_FRAME)];
+#if GM_OPT
+    if (parent_pcs_ptr->use_downsampled_gm_search) {
+        parent_pcs_ptr->global_motion[LAST_FRAME].wmmat[0] *= 2;
+        parent_pcs_ptr->global_motion[LAST_FRAME].wmmat[1] *= 2;
+        parent_pcs_ptr->global_motion[BWDREF_FRAME].wmmat[0] *= 2;
+        parent_pcs_ptr->global_motion[BWDREF_FRAME].wmmat[1] *= 2;
+    }
+#endif
 #else
     if (picture_control_set_ptr->parent_pcs_ptr->is_pan && picture_control_set_ptr->parent_pcs_ptr->is_tilt) {
         picture_control_set_ptr->parent_pcs_ptr->global_motion[LAST_FRAME].wmtype = TRANSLATION;

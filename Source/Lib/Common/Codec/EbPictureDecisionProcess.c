@@ -1358,6 +1358,13 @@ EbErrorType signal_derivation_multi_processes_oq(
             picture_control_set_ptr->frm_hdr.use_ref_frame_mvs = 0;
         else
             picture_control_set_ptr->frm_hdr.use_ref_frame_mvs = sequence_control_set_ptr->mfmv_enabled;
+
+#if GM_OPT
+        // Global motion search method           Settings
+        // 0                                     Full resolution
+        // 1                                     Down-sampled 2x2 resolution
+        picture_control_set_ptr->use_downsampled_gm_search = 1;
+#endif
     return return_error;
 }
 
