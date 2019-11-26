@@ -270,6 +270,21 @@ SIMD_INLINE void loadu_unpack_16bit_5rows_avx512(const int16_t *const src,
     tt_512[4] = _mm512_unpackhi_epi16(s_512[3], s_512[4]);
 }
 
+SIMD_INLINE void loadu_unpack_16bit_32x3_avx512(const int16_t *const src,
+    __m512i s_512[3],
+    __m512i ss_512[3],
+    __m512i tt_512[3]) {
+    s_512[0] = loadu_s16_16x2_avx512(src + 0 * 16, 32);
+    s_512[1] = loadu_s16_16x2_avx512(src + 1 * 16, 32);
+    s_512[2] = loadu_s16_16x2_avx512(src + 4 * 16, 32);
+
+    ss_512[0] = _mm512_unpacklo_epi16(s_512[0], s_512[1]);
+    ss_512[2] = _mm512_unpackhi_epi16(s_512[0], s_512[1]);
+
+    tt_512[0] = _mm512_unpacklo_epi16(s_512[1], s_512[2]);
+    tt_512[2] = _mm512_unpackhi_epi16(s_512[1], s_512[2]);
+}
+
 SIMD_INLINE void loadu_unpack_16bit_32x5_avx512(const int16_t *const src,
     __m512i s_512[5],
     __m512i ss_512[5],
@@ -860,6 +875,30 @@ static INLINE void xy_y_convolve_2tap_half_pel_64_all_avx512(
     r[0] = xy_y_round_half_pel_avx512(r[0]);
     r[1] = xy_y_round_half_pel_avx512(r[1]);
     xy_y_pack_store_64_avx512(r[0], r[1], dst);
+}
+
+static INLINE void xy_y_convolve_4tap_32_avx512(const __m512i ss[4],
+    const __m512i coeffs[2],
+    __m512i r[2]) {
+    r[0] = convolve16_4tap_avx512(ss, coeffs);
+    r[1] = convolve16_4tap_avx512(ss + 2, coeffs);
+}
+
+static INLINE void xy_y_convolve_4tap_width32x2_avx512(
+    const int16_t *const src, __m512i s_512[4], __m512i ss_512[4],
+    __m512i tt_512[4], const __m512i coeffs[2], __m512i r[4]) {
+    s_512[3] = loadu_s16_16x2_avx512(src + 5 * 16, 32);
+    ss_512[1] = _mm512_unpacklo_epi16(s_512[2], s_512[3]);
+    ss_512[3] = _mm512_unpackhi_epi16(s_512[2], s_512[3]);
+    s_512[2] = loadu_s16_16x2_avx512(src + 8 * 16, 32);
+    tt_512[1] = _mm512_unpacklo_epi16(s_512[3], s_512[2]);
+    tt_512[3] = _mm512_unpackhi_epi16(s_512[3], s_512[2]);
+    xy_y_convolve_4tap_32_avx512(ss_512, coeffs, r + 0);
+    xy_y_convolve_4tap_32_avx512(tt_512, coeffs, r + 2);
+    ss_512[0] = ss_512[1];
+    ss_512[2] = ss_512[3];
+    tt_512[0] = tt_512[1];
+    tt_512[2] = tt_512[3];
 }
 
 static INLINE void xy_y_convolve_6tap_32_avx512(const __m512i ss[6],

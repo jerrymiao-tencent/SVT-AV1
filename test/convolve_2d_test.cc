@@ -488,7 +488,7 @@ class AV1Convolve2DTest : public ::testing::TestWithParam<Convolve2DParam> {
                         // AV1 standard won't have 32x4 case.
                         // This only favors some optimization feature which
                         // subsamples 32x8 to 32x4 and triggers 4-tap filter.
-                        if ((is_jnt_ == 0) && !has_subx && has_suby &&
+                        if ((is_jnt_ == 0) && has_suby &&
                             ((output_w >> compIdx) == 32) &&
                             ((output_h >> compIdx) == 8)) {
                             filter_params_y =

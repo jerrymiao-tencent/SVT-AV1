@@ -541,6 +541,162 @@ static void convolve_2d_sr_ver_2tap_half_avx512(
     }
 }
 
+void convolve_2d_sr_ver_4tap_avx512(const int16_t *const im_block,
+    const int32_t w, const int32_t h,
+    InterpFilterParams *const filter_params_y,
+    const int32_t subpel_y_q4, uint8_t *dst,
+    const int32_t dst_stride) {
+    const int16_t *im = im_block;
+    int32_t y = h;
+
+    if (w == 2) {
+        __m128i coeffs_128[2], s_32[4], ss_128[2];
+
+        prepare_coeffs_4tap_sse2(filter_params_y, subpel_y_q4, coeffs_128);
+
+        s_32[0] = _mm_cvtsi32_si128(*(int32_t *)(im + 0 * 2));
+        s_32[1] = _mm_cvtsi32_si128(*(int32_t *)(im + 1 * 2));
+        s_32[2] = _mm_cvtsi32_si128(*(int32_t *)(im + 2 * 2));
+
+        const __m128i src01 = _mm_unpacklo_epi32(s_32[0], s_32[1]);
+        const __m128i src12 = _mm_unpacklo_epi32(s_32[1], s_32[2]);
+
+        ss_128[0] = _mm_unpacklo_epi16(src01, src12);
+
+        do {
+            const __m128i res =
+                xy_y_convolve_4tap_2x2_sse2(im, s_32, ss_128, coeffs_128);
+            xy_y_round_store_2x2_sse2(res, dst, dst_stride);
+            im += 2 * 2;
+            dst += 2 * dst_stride;
+            y -= 2;
+        } while (y);
+    }
+    else {
+        __m256i coeffs_256[2];
+
+        prepare_coeffs_4tap_avx2(filter_params_y, subpel_y_q4, coeffs_256);
+
+        if (w == 4) {
+            __m128i s_64[4];
+            __m256i s_256[2], ss_256[2];
+
+            s_64[0] = _mm_loadl_epi64((__m128i *)(im + 0 * 4));
+            s_64[1] = _mm_loadl_epi64((__m128i *)(im + 1 * 4));
+            s_64[2] = _mm_loadl_epi64((__m128i *)(im + 2 * 4));
+
+            // Load lines a and b. Line a to lower 128, line b to upper 128
+            s_256[0] = _mm256_setr_m128i(s_64[0], s_64[1]);
+            s_256[1] = _mm256_setr_m128i(s_64[1], s_64[2]);
+
+            ss_256[0] = _mm256_unpacklo_epi16(s_256[0], s_256[1]);
+
+            do {
+                const __m256i res =
+                    xy_y_convolve_4tap_4x2_avx2(im, s_64, ss_256, coeffs_256);
+                xy_y_round_store_4x2_avx2(res, dst, dst_stride);
+                im += 2 * 4;
+                dst += 2 * dst_stride;
+                y -= 2;
+            } while (y);
+        }
+        else if (w == 8) {
+            __m256i s_256[4], r[2];
+
+            s_256[0] = _mm256_loadu_si256((__m256i *)(im + 0 * 8));
+            s_256[1] = _mm256_loadu_si256((__m256i *)(im + 1 * 8));
+
+            if (subpel_y_q4 != 8) {
+                __m256i ss_256[4];
+
+                ss_256[0] = _mm256_unpacklo_epi16(s_256[0], s_256[1]);
+                ss_256[2] = _mm256_unpackhi_epi16(s_256[0], s_256[1]);
+
+                do {
+                    xy_y_convolve_4tap_8x2_avx2(im, ss_256, coeffs_256, r);
+                    xy_y_round_store_8x2_avx2(r, dst, dst_stride);
+                    im += 2 * 8;
+                    dst += 2 * dst_stride;
+                    y -= 2;
+                } while (y);
+            }
+            else {
+                do {
+                    xy_y_convolve_4tap_8x2_half_pel_avx2(
+                        im, coeffs_256, s_256, r);
+                    xy_y_round_store_8x2_avx2(r, dst, dst_stride);
+                    im += 2 * 8;
+                    dst += 2 * dst_stride;
+                    y -= 2;
+                } while (y);
+            }
+        }
+        else if (w == 16) {
+            __m256i s_256[5];
+
+            s_256[0] = _mm256_loadu_si256((__m256i *)(im + 0 * 16));
+            s_256[1] = _mm256_loadu_si256((__m256i *)(im + 1 * 16));
+            s_256[2] = _mm256_loadu_si256((__m256i *)(im + 2 * 16));
+
+            if (subpel_y_q4 != 8) {
+                __m256i ss_256[4], tt_256[4], r[4];
+
+                ss_256[0] = _mm256_unpacklo_epi16(s_256[0], s_256[1]);
+                ss_256[2] = _mm256_unpackhi_epi16(s_256[0], s_256[1]);
+
+                tt_256[0] = _mm256_unpacklo_epi16(s_256[1], s_256[2]);
+                tt_256[2] = _mm256_unpackhi_epi16(s_256[1], s_256[2]);
+
+                do {
+                    xy_y_convolve_4tap_16x2_avx2(
+                        im, s_256, ss_256, tt_256, coeffs_256, r);
+                    xy_y_round_store_16x2_avx2(r, dst, dst_stride);
+                    im += 2 * 16;
+                    dst += 2 * dst_stride;
+                    y -= 2;
+                } while (y);
+            }
+            else {
+                __m256i r[4];
+
+                do {
+                    xy_y_convolve_4tap_16x2_half_pelavx2(
+                        im, s_256, coeffs_256, r);
+                    xy_y_round_store_16x2_avx2(r, dst, dst_stride);
+                    im += 2 * 16;
+                    dst += 2 * dst_stride;
+                    y -= 2;
+                } while (y);
+            }
+        }
+        else {
+            /*It's a special condition for OBMC. A/c  to Av1 spec 4-tap won't
+            support for width(w)>16, but for OBMC while predicting above block
+            it reduces size block to Wx(h/2), for example, if above block size
+            is 32x8, we get block size as 32x4 for OBMC.*/
+            __m512i coeffs_512[2], s_512[4], ss_512[4], tt_512[4], r[4];
+
+            assert(w == 32);
+
+            prepare_coeffs_4tap_avx512(
+                filter_params_y, subpel_y_q4, coeffs_512);
+
+            loadu_unpack_16bit_32x3_avx512(im, s_512, ss_512, tt_512);
+
+            y = h;
+            do {
+                xy_y_convolve_4tap_width32x2_avx512(
+                    im, s_512, ss_512, tt_512, coeffs_512, r);
+                xy_y_round_store_32x2_avx512(r + 0, r + 2, dst, dst_stride);
+
+                im += 2 * 32;
+                dst += 2 * dst_stride;
+                y -= 2;
+            } while (y);
+        }
+    }
+}
+
 static void convolve_2d_sr_ver_6tap_avx512(
     const int16_t *const im_block, const int32_t w, const int32_t h,
     InterpFilterParams *const filter_params_y, const int32_t subpel_y_q4,
@@ -1008,8 +1164,8 @@ void eb_av1_convolve_2d_sr_avx512(
         NULL,
         convolve_2d_sr_ver_2tap_half_avx512,
         convolve_2d_sr_ver_2tap_avx512,
-        convolve_2d_sr_ver_4tap_avx2,
-        convolve_2d_sr_ver_4tap_avx2,
+        convolve_2d_sr_ver_4tap_avx512,
+        convolve_2d_sr_ver_4tap_avx512,
         convolve_2d_sr_ver_6tap_avx512,
         convolve_2d_sr_ver_6tap_avx512,
         convolve_2d_sr_ver_8tap_avx512,
