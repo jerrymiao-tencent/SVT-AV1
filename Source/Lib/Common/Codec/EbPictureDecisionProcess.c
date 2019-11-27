@@ -1299,6 +1299,9 @@ EbErrorType signal_derivation_multi_processes_oq(
         else
             picture_control_set_ptr->atb_mode = 0;
 
+#if OFF_ATB
+            picture_control_set_ptr->atb_mode = 0;
+#endif
         // Set skip atb                          Settings
         // 0                                     OFF
         // 1                                     ON
@@ -1326,6 +1329,11 @@ EbErrorType signal_derivation_multi_processes_oq(
         // 1                                     ON
             picture_control_set_ptr->enable_inter_intra = picture_control_set_ptr->slice_type != I_SLICE ? sequence_control_set_ptr->seq_header.enable_interintra_compound : 0;
 #endif
+#if OFF_COMP
+        
+            picture_control_set_ptr->enable_inter_intra = 0;
+
+#endif
         // Set compound mode      Settings
         // 0                 OFF: No compond mode search : AVG only
         // 1                 ON: compond mode search: AVG/DIST/DIFF
@@ -1335,7 +1343,11 @@ EbErrorType signal_derivation_multi_processes_oq(
             picture_control_set_ptr->enc_mode <= ENC_M1 ? 2 : 1;
         else
             picture_control_set_ptr->compound_mode = 0;
+#if OFF_COMP
+        
+            picture_control_set_ptr->compound_mode = 0;
 
+#endif
         // set compound_types_to_try
         if (picture_control_set_ptr->compound_mode)
             picture_control_set_ptr->compound_types_to_try = picture_control_set_ptr->compound_mode == 1 ? MD_COMP_DIFF0 : MD_COMP_WEDGE;
