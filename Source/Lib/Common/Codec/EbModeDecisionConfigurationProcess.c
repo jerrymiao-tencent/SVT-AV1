@@ -375,6 +375,7 @@ void SetGlobalMotionField(
         parent_pcs_ptr->global_motion[BWDREF_FRAME]
             = parent_pcs_ptr->global_motion_estimation[get_list_idx(BWDREF_FRAME)][get_ref_frame_idx(BWDREF_FRAME)];
 #if GM_OPT
+    // Upscale by 2 the translation parameters
     if (parent_pcs_ptr->use_downsampled_gm_search) {
         parent_pcs_ptr->global_motion[LAST_FRAME].wmmat[0] *= 2;
         parent_pcs_ptr->global_motion[LAST_FRAME].wmmat[1] *= 2;
