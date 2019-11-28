@@ -322,8 +322,8 @@ void eb_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int32_t dstride, uint16_t
     }
     if (pli == 1 && xdec != ydec) {
         for (bi = 0; bi < cdef_count; bi++) {
-            /*static*/ const int32_t conv422[8] = { 7, 0, 2, 4, 5, 6, 6, 6 };
-            /*static*/ const int32_t conv440[8] = { 1, 2, 2, 2, 3, 4, 6, 0 };
+            const int32_t conv422[8] = { 7, 0, 2, 4, 5, 6, 6, 6 };
+            const int32_t conv440[8] = { 1, 2, 2, 2, 3, 4, 6, 0 };
             by = dlist[bi].by;
             bx = dlist[bi].bx;
             dir[by][bx] = (xdec ? conv422 : conv440)[dir[by][bx]];
@@ -370,7 +370,6 @@ int32_t eb_sb_all_skip(PictureControlSet   *picture_control_set_ptr, const Av1Co
             skip =
                 skip &&
                 picture_control_set_ptr->mi_grid_base[(mi_row + r) * picture_control_set_ptr->mi_stride + mi_col + c]->mbmi.block_mi.skip;
-            /// cm->mi_grid_visible[(mi_row + r) * cm->mi_stride + mi_col + c]->skip;
         }
     }
     return skip;
@@ -646,17 +645,17 @@ void eb_av1_cdef_frame(
 
                 /* Copy in the pixels we need from the current superblock for
                    deringing.*/
-                copy_sb8_16(//cm,
+                copy_sb8_16(
                     &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER + cstart],
-                    CDEF_BSTRIDE, recBuff/*xd->plane[pli].dst.buf*/,
+                    CDEF_BSTRIDE, recBuff,
                     (MI_SIZE_64X64 << mi_high_l2[pli]) * fbr, coffset + cstart,
-                    recStride/*xd->plane[pli].dst.stride*/, rend, cend - cstart);
+                    recStride, rend, cend - cstart);
                 if (!prev_row_cdef[fbc]) {
-                    copy_sb8_16(//cm,
+                    copy_sb8_16(
                         &src[CDEF_HBORDER], CDEF_BSTRIDE,
-                        recBuff/*xd->plane[pli].dst.buf*/,
+                        recBuff,
                         (MI_SIZE_64X64 << mi_high_l2[pli]) * fbr - CDEF_VBORDER,
-                        coffset, recStride/*xd->plane[pli].dst.stride*/, CDEF_VBORDER, hsize);
+                        coffset, recStride, CDEF_VBORDER, hsize);
                 }
                 else if (fbr > 0) {
                     copy_rect(&src[CDEF_HBORDER], CDEF_BSTRIDE, &linebuf[pli][coffset],
@@ -668,10 +667,10 @@ void eb_av1_cdef_frame(
                 }
 
                 if (!prev_row_cdef[fbc - 1]) {
-                    copy_sb8_16(//cm,
-                        src, CDEF_BSTRIDE, recBuff/*xd->plane[pli].dst.buf*/,
+                    copy_sb8_16(
+                        src, CDEF_BSTRIDE, recBuff,
                         (MI_SIZE_64X64 << mi_high_l2[pli]) * fbr - CDEF_VBORDER,
-                        coffset - CDEF_HBORDER, recStride/*xd->plane[pli].dst.stride*/,
+                        coffset - CDEF_HBORDER, recStride,
                         CDEF_VBORDER, CDEF_HBORDER);
                 }
                 else if (fbr > 0 && fbc > 0) {
@@ -684,11 +683,11 @@ void eb_av1_cdef_frame(
                 }
 
                 if (!prev_row_cdef[fbc + 1]) {
-                    copy_sb8_16(//cm,
+                    copy_sb8_16(
                         &src[CDEF_HBORDER + (nhb << mi_wide_l2[pli])],
-                        CDEF_BSTRIDE, recBuff/*xd->plane[pli].dst.buf*/,
+                        CDEF_BSTRIDE, recBuff,
                         (MI_SIZE_64X64 << mi_high_l2[pli]) * fbr - CDEF_VBORDER,
-                        coffset + hsize, recStride/*xd->plane[pli].dst.stride*/, CDEF_VBORDER,
+                        coffset + hsize, recStride, CDEF_VBORDER,
                         CDEF_HBORDER);
                 }
                 else if (fbr > 0 && fbc < nhfb - 1) {
@@ -782,7 +781,7 @@ void av1_cdef_frame16bit(
     uint16_t*  reconBufferCb = (uint16_t*)recon_picture_ptr->buffer_cb + (recon_picture_ptr->origin_x / 2 + recon_picture_ptr->origin_y / 2 * recon_picture_ptr->stride_cb);
     uint16_t*  reconBufferCr = (uint16_t*)recon_picture_ptr->buffer_cr + (recon_picture_ptr->origin_x / 2 + recon_picture_ptr->origin_y / 2 * recon_picture_ptr->stride_cr);
 
-    const int32_t num_planes = 3;// av1_num_planes(cm);
+    const int32_t num_planes = 3;
     DECLARE_ALIGNED(16, uint16_t, src[CDEF_INBUF_SIZE]);
     uint16_t *linebuf[3];
     uint16_t *colbuf[3];
