@@ -2897,7 +2897,7 @@ void eb_av1_jnt_convolve_2d_avx2(const uint8_t *src, int32_t src_stride,
     // Note: im_block is 8-pixel interlaced for width 32 and up, to avoid data
     //       permutation.
     DECLARE_ALIGNED(
-    32, int16_t, im_block[(MAX_SB_SIZE + MAX_FILTER_TAP) * MAX_SB_SIZE]);
+    64, int16_t, im_block[(MAX_SB_SIZE + MAX_FILTER_TAP) * MAX_SB_SIZE]);
 
     assert(conv_params->round_0 == 3);
     assert(conv_params->round_1 == COMPOUND_ROUND1_BITS);
