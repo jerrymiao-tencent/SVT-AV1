@@ -21,8 +21,6 @@ extern "C" {
 #define CDEF_PRI_STRENGTHS 16
 #define CDEF_SEC_STRENGTHS 4
 
-#define _CDEF_BLOCK_H (1)
-
 #define CDEF_BLOCKSIZE 64
 #define CDEF_BLOCKSIZE_LOG2 6
 #define CDEF_NBLOCKS ((1 << MAX_SB_SIZE_LOG2) / 8)

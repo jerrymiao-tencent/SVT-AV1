@@ -716,10 +716,9 @@ void eb_av1_cdef_frame(
 
                 if (fbr < nvfb - 1)
                     copy_sb8_16(
-                        //cm,
-                        &linebuf[pli][coffset], stride, recBuff/*xd->plane[pli].dst.buf*/,
+                        &linebuf[pli][coffset], stride, recBuff,
                         (MI_SIZE_64X64 << mi_high_l2[pli]) * (fbr + 1) - CDEF_VBORDER,
-                        coffset, recStride/*xd->plane[pli].dst.stride*/, CDEF_VBORDER, hsize);
+                        coffset, recStride, CDEF_VBORDER, hsize);
 
                 if (frame_top) {
                     fill_rect(src, CDEF_BSTRIDE, CDEF_VBORDER, hsize + 2 * CDEF_HBORDER,
@@ -738,24 +737,10 @@ void eb_av1_cdef_frame(
                         vsize + 2 * CDEF_VBORDER, CDEF_HBORDER, CDEF_VERY_LARGE);
                 }
 
-                //if (cm->use_highbitdepth) {
-                //  eb_cdef_filter_fb(
-                //      NULL,
-                //      &CONVERT_TO_SHORTPTR(
-                //          xd->plane[pli]
-                //              .dst.buf)[xd->plane[pli].dst.stride *
-                //                            (MI_SIZE_64X64 * fbr << mi_high_l2[pli]) +
-                //                        (fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
-                //      xd->plane[pli].dst.stride,
-                //      &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER], xdec[pli],
-                //      ydec[pli], dir, NULL, var, pli, dlist, cdef_count, level,
-                //      sec_strength, pri_damping, sec_damping, coeff_shift);
-                //} else
                 {
                     eb_cdef_filter_fb(
                         &recBuff[recStride *(MI_SIZE_64X64 * fbr << mi_high_l2[pli]) + (fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
-                        //&xd->plane[pli].dst.buf[xd->plane[pli].dst.stride *(MI_SIZE_64X64 * fbr << mi_high_l2[pli]) +(fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
-                        NULL, recStride/*xd->plane[pli].dst.stride*/,
+                        NULL, recStride,
                         &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER], xdec[pli],
                         ydec[pli], dir, NULL, var, pli, dlist, cdef_count, level,
                         sec_strength, pri_damping, sec_damping, coeff_shift);
@@ -813,7 +798,6 @@ void av1_cdef_frame16bit(
     int32_t coeff_shift = AOMMAX(sequence_control_set_ptr->static_config.encoder_bit_depth/*cm->bit_depth*/ - 8, 0);
     const int32_t nvfb = (cm->mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
     const int32_t nhfb = (cm->mi_cols + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
-    //eb_av1_setup_dst_planes(xd->plane, cm->seq_params.sb_size, frame, 0, 0, 0, num_planes);
     row_cdef = (uint8_t *)eb_aom_malloc(sizeof(*row_cdef) * (nhfb + 2) * 2);
     assert(row_cdef);
     memset(row_cdef, 1, sizeof(*row_cdef) * (nhfb + 2) * 2);
@@ -960,22 +944,21 @@ void av1_cdef_frame16bit(
                     break;
                 }
 
-                //--ok
-                                /* Copy in the pixels we need from the current superblock for
-                                deringing.*/
+                /* Copy in the pixels we need from the current superblock for
+                deringing.*/
 
-                copy_sb16_16(//cm,
+                copy_sb16_16(
                     &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER + cstart],
-                    CDEF_BSTRIDE, recBuff/*xd->plane[pli].dst.buf*/,
+                    CDEF_BSTRIDE, recBuff,
                     (MI_SIZE_64X64 << mi_high_l2[pli]) * fbr, coffset + cstart,
-                    recStride/*xd->plane[pli].dst.stride*/, rend, cend - cstart);
+                    recStride, rend, cend - cstart);
 
                 if (!prev_row_cdef[fbc]) {
-                    copy_sb16_16(//cm,
+                    copy_sb16_16(
                         &src[CDEF_HBORDER], CDEF_BSTRIDE,
-                        recBuff/*xd->plane[pli].dst.buf*/,
+                        recBuff,
                         (MI_SIZE_64X64 << mi_high_l2[pli]) * fbr - CDEF_VBORDER,
-                        coffset, recStride/*xd->plane[pli].dst.stride*/, CDEF_VBORDER, hsize);
+                        coffset, recStride, CDEF_VBORDER, hsize);
                 }
                 else if (fbr > 0) {
                     copy_rect(&src[CDEF_HBORDER], CDEF_BSTRIDE, &linebuf[pli][coffset],
@@ -987,10 +970,10 @@ void av1_cdef_frame16bit(
                 }
 
                 if (!prev_row_cdef[fbc - 1]) {
-                    copy_sb16_16(//cm,
-                        src, CDEF_BSTRIDE, recBuff/*xd->plane[pli].dst.buf*/,
+                    copy_sb16_16(
+                        src, CDEF_BSTRIDE, recBuff,
                         (MI_SIZE_64X64 << mi_high_l2[pli]) * fbr - CDEF_VBORDER,
-                        coffset - CDEF_HBORDER, recStride/*xd->plane[pli].dst.stride*/,
+                        coffset - CDEF_HBORDER, recStride,
                         CDEF_VBORDER, CDEF_HBORDER);
                 }
                 else if (fbr > 0 && fbc > 0) {
@@ -1003,11 +986,11 @@ void av1_cdef_frame16bit(
                 }
 
                 if (!prev_row_cdef[fbc + 1]) {
-                    copy_sb16_16(//cm,
+                    copy_sb16_16(
                         &src[CDEF_HBORDER + (nhb << mi_wide_l2[pli])],
-                        CDEF_BSTRIDE, recBuff/*xd->plane[pli].dst.buf*/,
+                        CDEF_BSTRIDE, recBuff,
                         (MI_SIZE_64X64 << mi_high_l2[pli]) * fbr - CDEF_VBORDER,
-                        coffset + hsize, recStride/*xd->plane[pli].dst.stride*/, CDEF_VBORDER,
+                        coffset + hsize, recStride, CDEF_VBORDER,
                         CDEF_HBORDER);
                 }
                 else if (fbr > 0 && fbc < nhfb - 1) {
@@ -1034,10 +1017,9 @@ void av1_cdef_frame16bit(
                         rend + CDEF_VBORDER, CDEF_HBORDER);
                 if (fbr < nvfb - 1)
                     copy_sb16_16(
-                        //cm,
-                        &linebuf[pli][coffset], stride, recBuff/*xd->plane[pli].dst.buf*/,
+                        &linebuf[pli][coffset], stride, recBuff,
                         (MI_SIZE_64X64 << mi_high_l2[pli]) * (fbr + 1) - CDEF_VBORDER,
-                        coffset, recStride/*xd->plane[pli].dst.stride*/, CDEF_VBORDER, hsize);
+                        coffset, recStride, CDEF_VBORDER, hsize);
                 if (frame_top) {
                     fill_rect(src, CDEF_BSTRIDE, CDEF_VBORDER, hsize + 2 * CDEF_HBORDER,
                         CDEF_VERY_LARGE);
@@ -1055,29 +1037,13 @@ void av1_cdef_frame16bit(
                         vsize + 2 * CDEF_VBORDER, CDEF_HBORDER, CDEF_VERY_LARGE);
                 }
 
-                //if (cm->use_highbitdepth) {
-                //  eb_cdef_filter_fb(
-                //      NULL,
-                //      &CONVERT_TO_SHORTPTR(
-                //          xd->plane[pli]
-                //              .dst.buf)[xd->plane[pli].dst.stride *
-                //                            (MI_SIZE_64X64 * fbr << mi_high_l2[pli]) +
-                //                        (fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
-                //      xd->plane[pli].dst.stride,
-                //      &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER], xdec[pli],
-                //      ydec[pli], dir, NULL, var, pli, dlist, cdef_count, level,
-                //      sec_strength, pri_damping, sec_damping, coeff_shift);
-                //} else
-                {
-                    eb_cdef_filter_fb(
-                        NULL,
-                        &recBuff[recStride *(MI_SIZE_64X64 * fbr << mi_high_l2[pli]) + (fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
-                        //&xd->plane[pli].dst.buf[xd->plane[pli].dst.stride *(MI_SIZE_64X64 * fbr << mi_high_l2[pli]) +(fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
-                        recStride/*xd->plane[pli].dst.stride*/,
-                        &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER], xdec[pli],
-                        ydec[pli], dir, NULL, var, pli, dlist, cdef_count, level,
-                        sec_strength, pri_damping, sec_damping, coeff_shift);
-                }
+                eb_cdef_filter_fb(
+                    NULL,
+                    &recBuff[recStride *(MI_SIZE_64X64 * fbr << mi_high_l2[pli]) + (fbc * MI_SIZE_64X64 << mi_wide_l2[pli])],
+                    recStride,
+                    &src[CDEF_VBORDER * CDEF_BSTRIDE + CDEF_HBORDER], xdec[pli],
+                    ydec[pli], dir, NULL, var, pli, dlist, cdef_count, level,
+                    sec_strength, pri_damping, sec_damping, coeff_shift);
             }
             cdef_left = 1;  //CHKN filtered data is written back directy to recFrame.
         }
@@ -1473,7 +1439,6 @@ void finish_cdef_search(
 
     uint64_t(*mse[2])[TOTAL_STRENGTHS];
     int32_t pri_damping = 3 + (frm_hdr->quantization_params.base_q_idx >> 6);
-    //int32_t sec_damping = 3 + (frm_hdr->quantization_params.base_q_idx >> 6);
     int32_t i;
     int32_t nb_strengths;
     int32_t nb_strength_bits;
@@ -1617,8 +1582,6 @@ void finish_cdef_search(
     }
     //cdef_pri_damping & cdef_sec_damping consolidated to cdef_damping
     frm_hdr->CDEF_params.cdef_damping = pri_damping;
-    //pPcs->cdef_pri_damping = pri_damping;
-    //pPcs->cdef_sec_damping = sec_damping;
     for (int i = 0; i < total_strengths; i++)
         best_frame_gi_cnt += selected_strength_cnt[i] > best_frame_gi_cnt ? 1 : 0;
     pPcs->cdef_frame_strength = ((best_frame_gi_cnt + 4) / 4) * 4;
