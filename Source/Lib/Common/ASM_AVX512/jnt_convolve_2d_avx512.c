@@ -67,8 +67,8 @@ SIMD_INLINE void jnt_2d_comp_avg_round_store_32x2_avx512(
     const int32_t dst_stride, uint8_t *const dst8, const int32_t dst8_stride) {
     __m512i d[2];
 
-    d[0] = _mm512_load_si512((__m512i *)(dst + 0 * dst_stride));
-    d[1] = _mm512_load_si512((__m512i *)(dst + 1 * dst_stride));
+    d[0] = zz_loadu_512((dst + 0 * dst_stride));
+    d[1] = zz_loadu_512((dst + 1 * dst_stride));
     d[0] = _mm512_permutexvar_epi64(_mm512_setr_epi64(0, 1, 4, 5, 2, 3, 6, 7),
         d[0]);
     d[1] = _mm512_permutexvar_epi64(_mm512_setr_epi64(0, 1, 4, 5, 2, 3, 6, 7),
@@ -95,8 +95,8 @@ SIMD_INLINE void jnt_2d_comp_avg_round_store_half_pel_32x2_avx512(
     const int32_t dst8_stride) {
     __m512i d[2];
 
-    d[0] = _mm512_load_si512((__m512i *)(dst + 0 * dst_stride));
-    d[1] = _mm512_load_si512((__m512i *)(dst + 1 * dst_stride));
+    d[0] = zz_loadu_512((dst + 0 * dst_stride));
+    d[1] = zz_loadu_512((dst + 1 * dst_stride));
     d[0] = _mm512_permutexvar_epi64(_mm512_setr_epi64(0, 1, 4, 5, 2, 3, 6, 7),
         d[0]);
     d[1] = _mm512_permutexvar_epi64(_mm512_setr_epi64(0, 1, 4, 5, 2, 3, 6, 7),
@@ -144,8 +144,8 @@ SIMD_INLINE void jnt_2d_avg_round_store_32x2_avx512(
 
     r[0] = jnt_2d_round_32_avx512(r0, offset);
     r[1] = jnt_2d_round_32_avx512(r1, offset);
-    d[0] = _mm512_load_si512((__m512i *)(dst + 0 * dst_stride));
-    d[1] = _mm512_load_si512((__m512i *)(dst + 1 * dst_stride));
+    d[0] = zz_loadu_512((dst + 0 * dst_stride));
+    d[1] = zz_loadu_512((dst + 1 * dst_stride));
     d[0] = _mm512_permutexvar_epi64(_mm512_setr_epi64(0, 1, 4, 5, 2, 3, 6, 7),
         d[0]);
     d[1] = _mm512_permutexvar_epi64(_mm512_setr_epi64(0, 1, 4, 5, 2, 3, 6, 7),
@@ -177,8 +177,8 @@ static INLINE void jnt_2d_avg_round_store_half_pel_32x2_avx512(
 
     r[0] = jnt_2d_round_half_pel_avx512(res[0], offset);
     r[1] = jnt_2d_round_half_pel_avx512(res[1], offset);
-    d[0] = _mm512_load_si512((__m512i *)(dst + 0 * dst_stride));
-    d[1] = _mm512_load_si512((__m512i *)(dst + 1 * dst_stride));
+    d[0] = zz_loadu_512((dst + 0 * dst_stride));
+    d[1] = zz_loadu_512((dst + 1 * dst_stride));
     d[0] = _mm512_permutexvar_epi64(_mm512_setr_epi64(0, 1, 4, 5, 2, 3, 6, 7),
         d[0]);
     d[1] = _mm512_permutexvar_epi64(_mm512_setr_epi64(0, 1, 4, 5, 2, 3, 6, 7),
@@ -387,9 +387,9 @@ static void jnt_convolve_2d_hor_6tap_avx512(
     else {
         __m512i coeffs_512[3], filt_512[3];
 
-        filt_512[0] = _mm512_load_si512((__m512i const *)filt1_global_avx);
-        filt_512[1] = _mm512_load_si512((__m512i const *)filt2_global_avx);
-        filt_512[2] = _mm512_load_si512((__m512i const *)filt3_global_avx);
+        filt_512[0] = zz_load_512(filt1_global_avx);
+        filt_512[1] = zz_load_512(filt2_global_avx);
+        filt_512[2] = zz_load_512(filt3_global_avx);
 
         prepare_half_coeffs_6tap_avx512(
             filter_params_x, subpel_x_q4, coeffs_512);
@@ -469,10 +469,10 @@ static void jnt_convolve_2d_hor_8tap_avx512(
     else {
         __m512i coeffs_512[4], filt_512[4];
 
-        filt_512[0] = _mm512_load_si512((__m512i const *)filt1_global_avx);
-        filt_512[1] = _mm512_load_si512((__m512i const *)filt2_global_avx);
-        filt_512[2] = _mm512_load_si512((__m512i const *)filt3_global_avx);
-        filt_512[3] = _mm512_load_si512((__m512i const *)filt4_global_avx);
+        filt_512[0] = zz_load_512(filt1_global_avx);
+        filt_512[1] = zz_load_512(filt2_global_avx);
+        filt_512[2] = zz_load_512(filt3_global_avx);
+        filt_512[3] = zz_load_512(filt4_global_avx);
 
         prepare_half_coeffs_8tap_avx512(
             filter_params_x, subpel_x_q4, coeffs_512);
@@ -829,8 +829,8 @@ static void jnt_convolve_2d_ver_2tap_avx512(
         else if (w == 64) {
             __m512i s_512[2][2], r[4];
 
-            s_512[0][0] = _mm512_load_si512((__m512i *)(im + 0 * 32));
-            s_512[0][1] = _mm512_load_si512((__m512i *)(im + 1 * 32));
+            s_512[0][0] = zz_load_512(im + 0 * 32);
+            s_512[0][1] = zz_load_512(im + 1 * 32);
 
             if (conv_params->do_average) {
                 if (conv_params->use_jnt_comp_avg) {
@@ -909,7 +909,7 @@ static void jnt_convolve_2d_ver_2tap_avx512(
 
             assert(w == 128);
 
-            load_16bit_8rows_avx512(im, 32, s_512[0]);
+            load_16bit_4rows_avx512(im, 32, s_512[0]);
 
             if (conv_params->do_average) {
                 if (conv_params->use_jnt_comp_avg) {
@@ -1404,8 +1404,8 @@ static void jnt_convolve_2d_ver_2tap_half_avx512(
         else if (w == 64) {
             __m512i s_512[2][2], r[2];
 
-            s_512[0][0] = _mm512_load_si512((__m512i *)(im + 0 * 32));
-            s_512[0][1] = _mm512_load_si512((__m512i *)(im + 1 * 32));
+            s_512[0][0] = zz_load_512(im + 0 * 32);
+            s_512[0][1] = zz_load_512(im + 1 * 32);
 
             if (conv_params->do_average) {
                 if (conv_params->use_jnt_comp_avg) {
@@ -1478,7 +1478,7 @@ static void jnt_convolve_2d_ver_2tap_half_avx512(
 
             assert(w == 128);
 
-            load_16bit_8rows_avx512(im, 32, s_512[0]);
+            load_16bit_4rows_avx512(im, 32, s_512[0]);
 
             if (conv_params->do_average) {
                 if (conv_params->use_jnt_comp_avg) {

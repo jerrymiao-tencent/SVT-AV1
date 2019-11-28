@@ -1571,12 +1571,9 @@ void eb_av1_convolve_x_sr_avx512(const uint8_t *src, int32_t src_stride,
                 prepare_half_coeffs_6tap_avx512(
                     filter_params_x, subpel_x_q4, coeffs_512);
 
-                filt_512[0] =
-                    _mm512_load_si512((__m512i const *)filt1_global_avx);
-                filt_512[1] =
-                    _mm512_load_si512((__m512i const *)filt2_global_avx);
-                filt_512[2] =
-                    _mm512_load_si512((__m512i const *)filt3_global_avx);
+                filt_512[0] = zz_load_512(filt1_global_avx);
+                filt_512[1] = zz_load_512(filt2_global_avx);
+                filt_512[2] = zz_load_512(filt3_global_avx);
 
                 if (w == 32) {
                     do {
@@ -1661,14 +1658,10 @@ void eb_av1_convolve_x_sr_avx512(const uint8_t *src, int32_t src_stride,
                 prepare_half_coeffs_8tap_avx512(
                     filter_params_x, subpel_x_q4, coeffs_512);
 
-                filt_512[0] =
-                    _mm512_load_si512((__m512i const *)filt1_global_avx);
-                filt_512[1] =
-                    _mm512_load_si512((__m512i const *)filt2_global_avx);
-                filt_512[2] =
-                    _mm512_load_si512((__m512i const *)filt3_global_avx);
-                filt_512[3] =
-                    _mm512_load_si512((__m512i const *)filt4_global_avx);
+                filt_512[0] = zz_load_512(filt1_global_avx);
+                filt_512[1] = zz_load_512(filt2_global_avx);
+                filt_512[2] = zz_load_512(filt3_global_avx);
+                filt_512[3] = zz_load_512(filt4_global_avx);
 
                 if (w == 32) {
                     do {

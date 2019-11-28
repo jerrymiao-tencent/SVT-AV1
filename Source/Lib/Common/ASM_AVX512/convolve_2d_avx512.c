@@ -154,9 +154,9 @@ static void convolve_2d_sr_hor_6tap_avx512(
     else {
         __m512i coeffs_512[3], filt_512[3];
 
-        filt_512[0] = _mm512_load_si512((__m512i const *)filt1_global_avx);
-        filt_512[1] = _mm512_load_si512((__m512i const *)filt2_global_avx);
-        filt_512[2] = _mm512_load_si512((__m512i const *)filt3_global_avx);
+        filt_512[0] = zz_load_512(filt1_global_avx);
+        filt_512[1] = zz_load_512(filt2_global_avx);
+        filt_512[2] = zz_load_512(filt3_global_avx);
         prepare_half_coeffs_6tap_avx512(
             filter_params_x, subpel_x_q4, coeffs_512);
 
@@ -236,10 +236,10 @@ static void convolve_2d_sr_hor_8tap_avx512(
     else {
         __m512i coeffs_512[4], filt_512[4];
 
-        filt_512[0] = _mm512_load_si512((__m512i const *)filt1_global_avx);
-        filt_512[1] = _mm512_load_si512((__m512i const *)filt2_global_avx);
-        filt_512[2] = _mm512_load_si512((__m512i const *)filt3_global_avx);
-        filt_512[3] = _mm512_load_si512((__m512i const *)filt4_global_avx);
+        filt_512[0] = zz_load_512(filt1_global_avx);
+        filt_512[1] = zz_load_512(filt2_global_avx);
+        filt_512[2] = zz_load_512(filt3_global_avx);
+        filt_512[3] = zz_load_512(filt4_global_avx);
         prepare_half_coeffs_8tap_avx512(
             filter_params_x, subpel_x_q4, coeffs_512);
 
@@ -374,8 +374,8 @@ static void convolve_2d_sr_ver_2tap_avx512(
         else if (w == 64) {
             __m512i s_512[2][2];
 
-            s_512[0][0] = _mm512_load_si512((__m512i *)(im + 0 * 32));
-            s_512[0][1] = _mm512_load_si512((__m512i *)(im + 1 * 32));
+            s_512[0][0] = zz_load_512(im + 0 * 32);
+            s_512[0][1] = zz_load_512(im + 1 * 32);
 
             do {
                 xy_y_convolve_2tap_64_all_avx512(
@@ -392,7 +392,7 @@ static void convolve_2d_sr_ver_2tap_avx512(
 
             assert(w == 128);
 
-            load_16bit_8rows_avx512(im, 32, s_512[0]);
+            load_16bit_4rows_avx512(im, 32, s_512[0]);
 
             do {
                 xy_y_convolve_2tap_64_all_avx512(
@@ -505,8 +505,8 @@ static void convolve_2d_sr_ver_2tap_half_avx512(
     else if (w == 64) {
         __m512i s_512[2][2];
 
-        s_512[0][0] = _mm512_load_si512((__m512i *)(im + 0 * 32));
-        s_512[0][1] = _mm512_load_si512((__m512i *)(im + 1 * 32));
+        s_512[0][0] = zz_load_512(im + 0 * 32);
+        s_512[0][1] = zz_load_512(im + 1 * 32);
 
         do {
             xy_y_convolve_2tap_half_pel_64_all_avx512(
@@ -523,7 +523,7 @@ static void convolve_2d_sr_ver_2tap_half_avx512(
 
         assert(w == 128);
 
-        load_16bit_8rows_avx512(im, 32, s_512[0]);
+        load_16bit_4rows_avx512(im, 32, s_512[0]);
 
         do {
             xy_y_convolve_2tap_half_pel_64_all_avx512(

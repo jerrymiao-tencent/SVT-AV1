@@ -15,6 +15,8 @@
 #include <immintrin.h>
 #include "EbDefinitions.h"
 
+//#define EB_TEST_SIMD_ALIGN
+
  /**
   * Various reusable shorthands for x86 SIMD intrinsics.
   *

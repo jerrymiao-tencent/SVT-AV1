@@ -2948,44 +2948,6 @@ static INLINE void jnt_2d_no_avg_round_store_half_pel_32_avx2(
     jnt_no_avg_store_16x2_avx2(d0, d1, dst, 16);
 }
 
-static INLINE __m256i comp_avg(const __m256i *const data_ref_0,
-    const __m256i *const res_unsigned,
-    const __m256i *const wt,
-    const int32_t use_jnt_comp_avg) {
-    __m256i res;
-    if (use_jnt_comp_avg) {
-        const __m256i data_lo =
-            _mm256_unpacklo_epi16(*data_ref_0, *res_unsigned);
-        const __m256i data_hi =
-            _mm256_unpackhi_epi16(*data_ref_0, *res_unsigned);
-
-        const __m256i wt_res_lo = _mm256_madd_epi16(data_lo, *wt);
-        const __m256i wt_res_hi = _mm256_madd_epi16(data_hi, *wt);
-
-        const __m256i res_lo =
-            _mm256_srai_epi32(wt_res_lo, DIST_PRECISION_BITS);
-        const __m256i res_hi =
-            _mm256_srai_epi32(wt_res_hi, DIST_PRECISION_BITS);
-
-        res = _mm256_packs_epi32(res_lo, res_hi);
-    }
-    else {
-        const __m256i wt_res = _mm256_add_epi16(*data_ref_0, *res_unsigned);
-        res = _mm256_srai_epi16(wt_res, 1);
-    }
-    return res;
-}
-
-static INLINE __m256i convolve_rounding(const __m256i *const res_unsigned,
-    const __m256i *const offset_const,
-    const __m256i *const round_const,
-    const int32_t round_shift) {
-    const __m256i res_signed = _mm256_sub_epi16(*res_unsigned, *offset_const);
-    const __m256i res_round = _mm256_srai_epi16(
-        _mm256_add_epi16(res_signed, *round_const), round_shift);
-    return res_round;
-}
-
 static INLINE __m256i highbd_comp_avg(const __m256i *const data_ref_0,
     const __m256i *const res_unsigned,
     const __m256i *const wt0,

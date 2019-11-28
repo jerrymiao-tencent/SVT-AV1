@@ -4112,12 +4112,9 @@ static void jnt_convolve_x_6tap_avx512(
                     _mm512_set1_epi32(offset_comp_avg);
                 __m512i coeffs_512[4], filt_512[4];
 
-                filt_512[0] =
-                    _mm512_load_si512((__m512i const *)filt1_global_avx);
-                filt_512[1] =
-                    _mm512_load_si512((__m512i const *)filt2_global_avx);
-                filt_512[2] =
-                    _mm512_load_si512((__m512i const *)filt3_global_avx);
+                filt_512[0] = zz_load_512(filt1_global_avx);
+                filt_512[1] = zz_load_512(filt2_global_avx);
+                filt_512[2] = zz_load_512(filt3_global_avx);
                 prepare_half_coeffs_6tap_avx512(
                     filter_params_x, subpel_x_q4, coeffs_512);
 
@@ -4236,12 +4233,9 @@ static void jnt_convolve_x_6tap_avx512(
                 const __m512i offset_avg_512 = _mm512_set1_epi16(offset_avg);
                 __m512i coeffs_512[4], filt_512[4];
 
-                filt_512[0] =
-                    _mm512_load_si512((__m512i const *)filt1_global_avx);
-                filt_512[1] =
-                    _mm512_load_si512((__m512i const *)filt2_global_avx);
-                filt_512[2] =
-                    _mm512_load_si512((__m512i const *)filt3_global_avx);
+                filt_512[0] = zz_load_512(filt1_global_avx);
+                filt_512[1] = zz_load_512(filt2_global_avx);
+                filt_512[2] = zz_load_512(filt3_global_avx);
                 prepare_half_coeffs_6tap_avx512(
                     filter_params_x, subpel_x_q4, coeffs_512);
 
@@ -4345,9 +4339,9 @@ static void jnt_convolve_x_6tap_avx512(
             const __m512i offset_no_avg_512 = _mm512_set1_epi16(offset_no_avg);
             __m512i coeffs_512[4], filt_512[4];
 
-            filt_512[0] = _mm512_load_si512((__m512i const *)filt1_global_avx);
-            filt_512[1] = _mm512_load_si512((__m512i const *)filt2_global_avx);
-            filt_512[2] = _mm512_load_si512((__m512i const *)filt3_global_avx);
+            filt_512[0] = zz_load_512(filt1_global_avx);
+            filt_512[1] = zz_load_512(filt2_global_avx);
+            filt_512[2] = zz_load_512(filt3_global_avx);
             prepare_half_coeffs_6tap_avx512(
                 filter_params_x, subpel_x_q4, coeffs_512);
 
@@ -4479,14 +4473,10 @@ static void jnt_convolve_x_8tap_avx512(
             else {
                 __m512i coeffs_512[4], filt_512[4];
 
-                filt_512[0] =
-                    _mm512_load_si512((__m512i const *)filt1_global_avx);
-                filt_512[1] =
-                    _mm512_load_si512((__m512i const *)filt2_global_avx);
-                filt_512[2] =
-                    _mm512_load_si512((__m512i const *)filt3_global_avx);
-                filt_512[3] =
-                    _mm512_load_si512((__m512i const *)filt4_global_avx);
+                filt_512[0] = zz_load_512(filt1_global_avx);
+                filt_512[1] = zz_load_512(filt2_global_avx);
+                filt_512[2] = zz_load_512(filt3_global_avx);
+                filt_512[3] = zz_load_512(filt4_global_avx);
                 prepare_half_coeffs_8tap_avx512(
                     filter_params_x, subpel_x_q4, coeffs_512);
 
@@ -4607,14 +4597,10 @@ static void jnt_convolve_x_8tap_avx512(
             else {
                 __m512i coeffs_512[4], filt_512[4];
 
-                filt_512[0] =
-                    _mm512_load_si512((__m512i const *)filt1_global_avx);
-                filt_512[1] =
-                    _mm512_load_si512((__m512i const *)filt2_global_avx);
-                filt_512[2] =
-                    _mm512_load_si512((__m512i const *)filt3_global_avx);
-                filt_512[3] =
-                    _mm512_load_si512((__m512i const *)filt4_global_avx);
+                filt_512[0] = zz_load_512(filt1_global_avx);
+                filt_512[1] = zz_load_512(filt2_global_avx);
+                filt_512[2] = zz_load_512(filt3_global_avx);
+                filt_512[3] = zz_load_512(filt4_global_avx);
                 prepare_half_coeffs_8tap_avx512(
                     filter_params_x, subpel_x_q4, coeffs_512);
 
@@ -4719,10 +4705,10 @@ static void jnt_convolve_x_8tap_avx512(
         else {
             __m512i coeffs_512[4], filt_512[4];
 
-            filt_512[0] = _mm512_load_si512((__m512i const *)filt1_global_avx);
-            filt_512[1] = _mm512_load_si512((__m512i const *)filt2_global_avx);
-            filt_512[2] = _mm512_load_si512((__m512i const *)filt3_global_avx);
-            filt_512[3] = _mm512_load_si512((__m512i const *)filt4_global_avx);
+            filt_512[0] = zz_load_512(filt1_global_avx);
+            filt_512[1] = zz_load_512(filt2_global_avx);
+            filt_512[2] = zz_load_512(filt3_global_avx);
+            filt_512[3] = zz_load_512(filt4_global_avx);
             prepare_half_coeffs_8tap_avx512(
                 filter_params_x, subpel_x_q4, coeffs_512);
 

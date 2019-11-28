@@ -13,6 +13,7 @@
 #include "EbMemory_SSE4_1.h"
 #include "synonyms.h"
 #include "synonyms_avx2.h"
+#include "synonyms_avx512.h"
 
 static INLINE __m512i eb_mm512_broadcast_i64x2(const __m128i v) {
 #ifdef _WIN32
@@ -234,28 +235,24 @@ static INLINE void load_16bit_32x7_avx512(const int16_t *const src,
     dst[6] = loadu_s16_16x2_avx512(src + 12 * 16, 32);
 }
 
+SIMD_INLINE void load_16bit_4rows_avx512(const int16_t *const src,
+    const int32_t stride, __m512i dst[8]) {
+    dst[0] = zz_load_512(src + 0 * stride);
+    dst[1] = zz_load_512(src + 1 * stride);
+    dst[2] = zz_load_512(src + 2 * stride);
+    dst[3] = zz_load_512(src + 3 * stride);
+}
+
 static INLINE void load_16bit_7rows_avx512(const int16_t *const src,
     const int32_t stride,
     __m512i dst[7]) {
-    dst[0] = _mm512_load_si512((__m512i *)(src + 0 * stride));
-    dst[1] = _mm512_load_si512((__m512i *)(src + 1 * stride));
-    dst[2] = _mm512_load_si512((__m512i *)(src + 2 * stride));
-    dst[3] = _mm512_load_si512((__m512i *)(src + 3 * stride));
-    dst[4] = _mm512_load_si512((__m512i *)(src + 4 * stride));
-    dst[5] = _mm512_load_si512((__m512i *)(src + 5 * stride));
-    dst[6] = _mm512_load_si512((__m512i *)(src + 6 * stride));
-}
-
-SIMD_INLINE void load_16bit_8rows_avx512(const int16_t *const src,
-    const int32_t stride, __m512i dst[8]) {
-    dst[0] = _mm512_load_si512((__m512i *)(src + 0 * stride));
-    dst[1] = _mm512_load_si512((__m512i *)(src + 1 * stride));
-    dst[2] = _mm512_load_si512((__m512i *)(src + 2 * stride));
-    dst[3] = _mm512_load_si512((__m512i *)(src + 3 * stride));
-    // dst[4] = _mm512_load_si512((__m512i *)(src + 4 * stride));
-    // dst[5] = _mm512_load_si512((__m512i *)(src + 5 * stride));
-    // dst[6] = _mm512_load_si512((__m512i *)(src + 6 * stride));
-    // dst[7] = _mm512_load_si512((__m512i *)(src + 7 * stride));
+    dst[0] = zz_load_512(src + 0 * stride);
+    dst[1] = zz_load_512(src + 1 * stride);
+    dst[2] = zz_load_512(src + 2 * stride);
+    dst[3] = zz_load_512(src + 3 * stride);
+    dst[4] = zz_load_512(src + 4 * stride);
+    dst[5] = zz_load_512(src + 5 * stride);
+    dst[6] = zz_load_512(src + 6 * stride);
 }
 
 SIMD_INLINE void loadu_unpack_16bit_5rows_avx512(const int16_t *const src,
@@ -751,8 +748,8 @@ static INLINE void xy_x_2tap_32x2_avx512(const uint8_t *const src,
     // const __m512i d0 = _mm512_inserti64x4(t0, _mm512_castsi512_si256(t1), 1);
     // const __m512i d1 = _mm512_inserti64x4(t1, _mm512_extracti64x4_epi64(t0,
     // 1), 0);
-    _mm512_store_si512((__m512i *)dst, d0);
-    _mm512_store_si512((__m512i *)(dst + 32), d1);
+    zz_store_512(dst, d0);
+    zz_store_512(dst + 32, d1);
 }
 
 static INLINE void xy_x_store_64_avx512(const __m512i d[2],
@@ -762,8 +759,8 @@ static INLINE void xy_x_store_64_avx512(const __m512i d[2],
     // const __m512i d0 = _mm512_inserti64x4(t0, _mm512_castsi512_si256(t1), 1);
     // const __m512i d1 = _mm512_inserti64x4(t1, _mm512_extracti64x4_epi64(t0,
     // 1), 0);
-    _mm512_store_si512((__m512i *)dst, d0);
-    _mm512_store_si512((__m512i *)(dst + 32), d1);
+    zz_store_512(dst, d0);
+    zz_store_512(dst + 32, d1);
 }
 
 static INLINE void xy_x_2tap_64_avx512(const uint8_t *const src,
@@ -842,8 +839,8 @@ static INLINE void xy_y_convolve_2tap_64_avx512(const int16_t *const src,
     __m512i s1[2],
     const __m512i coeffs[1],
     __m512i r[4]) {
-    s1[0] = _mm512_load_si512((__m512i *)src);
-    s1[1] = _mm512_load_si512((__m512i *)(src + 32));
+    s1[0] = zz_load_512(src);
+    s1[1] = zz_load_512(src + 32);
     xy_y_convolve_2tap_32_avx512(s0[0], s1[0], coeffs, r + 0);
     xy_y_convolve_2tap_32_avx512(s0[1], s1[1], coeffs, r + 2);
 }
@@ -870,8 +867,8 @@ static INLINE void xy_y_convolve_2tap_half_pel_32x2_avx512(
 static INLINE void xy_y_convolve_2tap_half_pel_64_avx512(
     const int16_t *const src, const __m512i s0[2], __m512i s1[2],
     __m512i r[2]) {
-    s1[0] = _mm512_load_si512((__m512i *)src);
-    s1[1] = _mm512_load_si512((__m512i *)(src + 32));
+    s1[0] = zz_load_512(src);
+    s1[1] = zz_load_512(src + 32);
     r[0] = _mm512_add_epi16(s0[0], s1[0]);
     r[1] = _mm512_add_epi16(s0[1], s1[1]);
 }
@@ -1005,10 +1002,10 @@ SIMD_INLINE void xy_y_convolve_8tap_width32x2_avx512(
 SIMD_INLINE void xy_y_convolve_8tap_32x2_avx512(
     const int16_t *const src, const int32_t stride, const __m512i coeffs[4],
     __m512i s_512[8], __m512i ss_512[8], __m512i tt_512[8], __m512i r[4]) {
-    s_512[7] = _mm512_load_si512((__m512i *)(src + 7 * stride));
+    s_512[7] = zz_load_512(src + 7 * stride);
     ss_512[3] = _mm512_unpacklo_epi16(s_512[6], s_512[7]);
     ss_512[7] = _mm512_unpackhi_epi16(s_512[6], s_512[7]);
-    s_512[6] = _mm512_load_si512((__m512i *)(src + 8 * stride));
+    s_512[6] = zz_load_512(src + 8 * stride);
     tt_512[3] = _mm512_unpacklo_epi16(s_512[7], s_512[6]);
     tt_512[7] = _mm512_unpackhi_epi16(s_512[7], s_512[6]);
 
