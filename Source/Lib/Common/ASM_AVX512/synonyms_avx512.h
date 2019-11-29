@@ -39,8 +39,8 @@ static INLINE void zz_store_512(void *const a, const __m512i v) {
 #ifdef EB_TEST_SIMD_ALIGN
     if ((intptr_t)a % 64)
         printf("\n zz_store_512() NOT 64-byte aligned!!!\n");
-    _mm512_store_si512((__m512i *)a, v);
 #endif
+    _mm512_store_si512((__m512i *)a, v);
 }
 
 static INLINE void zz_storeu_512(void *const a, const __m512i v) {
