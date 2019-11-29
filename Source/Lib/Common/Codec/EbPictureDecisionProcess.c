@@ -1362,8 +1362,11 @@ EbErrorType signal_derivation_multi_processes_oq(
 #if GM_OPT
         // Global motion search method           Settings
         // 0                                     Full resolution
-        // 1                                     Down-sampled 2x2 resolution
-        picture_control_set_ptr->use_downsampled_gm_search = 1;
+        // 1                                     Downsampled resolution with a downsampling factor of 2 in each dimension
+        if(MR_MODE)
+            picture_control_set_ptr->use_downsampled_gm_search = 0;
+        else
+            picture_control_set_ptr->use_downsampled_gm_search = 1;
 #endif
     return return_error;
 }
