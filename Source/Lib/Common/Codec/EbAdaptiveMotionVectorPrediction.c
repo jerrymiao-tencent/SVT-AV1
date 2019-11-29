@@ -1331,27 +1331,9 @@ void generate_av1_mvp_table(
     uint32_t refIt;
     for (refIt = 0; refIt < tot_refs; ++refIt) {
         MvReferenceFrame ref_frame = ref_frames[refIt];
-        IntMv zeromv[2] = { {0}, {0} };
 
         MvReferenceFrame rf[2];
         av1_set_ref_frame(rf, ref_frame);
-
-        if (ref_frame != INTRA_FRAME) {
-            zeromv[0].as_int =
-                gm_get_motion_vector_enc(&picture_control_set_ptr->parent_pcs_ptr->global_motion[rf[0]],
-                    frm_hdr->allow_high_precision_mv, bsize, mi_col, mi_row,
-                    frm_hdr->force_integer_mv)
-                .as_int;
-            zeromv[1].as_int = (rf[1] != NONE_FRAME)
-                ? gm_get_motion_vector_enc(&picture_control_set_ptr->parent_pcs_ptr->global_motion[rf[1]],
-                    frm_hdr->allow_high_precision_mv,
-                    bsize, mi_col, mi_row,
-                    frm_hdr->force_integer_mv)
-                .as_int
-                : 0;
-        }
-        else
-            zeromv[0].as_int = zeromv[1].as_int = 0;
 
         IntMv gm_mv[2];
 
