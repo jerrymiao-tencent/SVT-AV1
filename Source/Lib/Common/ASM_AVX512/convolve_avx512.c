@@ -13,6 +13,8 @@
 #include "EbMemory_AVX2.h"
 #include "synonyms.h"
 
+#ifndef NON_AVX512_SUPPORT
+
 static INLINE __m512i sr_x_round_avx512(const __m512i src) {
     const __m512i round = _mm512_set1_epi16(34);
     const __m512i dst = _mm512_add_epi16(src, round);
@@ -1698,3 +1700,5 @@ void eb_av1_convolve_x_sr_avx512(const uint8_t *src, int32_t src_stride,
         }
     }
 }
+
+#endif  // !NON_AVX512_SUPPORT

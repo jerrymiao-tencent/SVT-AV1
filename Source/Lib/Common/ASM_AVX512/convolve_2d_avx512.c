@@ -12,6 +12,8 @@
 #include "convolve_avx512.h"
 #include "synonyms.h"
 
+#ifndef NON_AVX512_SUPPORT
+
 static void convolve_2d_sr_hor_2tap_avx512(
     const uint8_t *const src, const int32_t src_stride, const int32_t w,
     const int32_t h, const InterpFilterParams *const filter_params_x,
@@ -1307,3 +1309,5 @@ void eb_av1_convolve_2d_copy_sr_avx512(
         } while (h);
     }
 }
+
+#endif  // !NON_AVX512_SUPPORT

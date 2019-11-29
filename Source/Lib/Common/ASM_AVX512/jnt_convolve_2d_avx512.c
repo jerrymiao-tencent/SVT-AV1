@@ -11,6 +11,8 @@
 #include "EbDefinitions.h"
 #include "EbMemory_SSE4_1.h"
 
+#ifndef NON_AVX512_SUPPORT
+
 static INLINE __m512i jnt_2d_comp_avg_round_32_avx512(const __m512i src[2]) {
     const __m512i round = _mm512_set1_epi32(1 << (COMPOUND_ROUND1_BITS - 1));
     const __m512i dst0 = _mm512_add_epi32(src[0], round);
@@ -2640,3 +2642,5 @@ void eb_av1_jnt_convolve_2d_avx512(
         dst8,
         dst8_stride);
 }
+
+#endif  // !NON_AVX512_SUPPORT

@@ -11,6 +11,8 @@
 #include "EbDefinitions.h"
 #include "EbMemory_SSE4_1.h"
 
+#ifndef NON_AVX512_SUPPORT
+
 SIMD_INLINE void jnt_y_comp_avg_2tap_64_avx512(
     const uint8_t *const src, const __m512i *const coeffs, const __m512i factor,
     const __m512i offset, const __m512i s0, __m512i *const s1,
@@ -4793,3 +4795,5 @@ void eb_av1_jnt_convolve_x_avx512(
         subpel_x_q4,
         conv_params);
 }
+
+#endif  // !NON_AVX512_SUPPORT

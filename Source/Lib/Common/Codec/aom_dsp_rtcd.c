@@ -1004,6 +1004,16 @@ void setup_rtcd_internal(EbAsm asm_type)
     eb_aom_sad8x4x4d = eb_aom_sad8x4x4d_c;
     if (flags & HAS_AVX2) eb_aom_sad8x4x4d = eb_aom_sad8x4x4d_avx2;
 
+    eb_aom_sad64x128 = eb_aom_sad64x128_c;
+    eb_aom_sad64x16 = eb_aom_sad64x16_c;
+    eb_aom_sad64x32 = eb_aom_sad64x32_c;
+    eb_aom_sad64x64 = eb_aom_sad64x64_c;
+    eb_aom_sad128x128 = eb_aom_sad128x128_c;
+    eb_aom_sad128x128x4d = eb_aom_sad128x128x4d_c;
+    eb_aom_sad128x64 = eb_aom_sad128x64_c;
+    eb_aom_sad128x64x4d = eb_aom_sad128x64x4d_c;
+    eb_av1_txb_init_levels = eb_av1_txb_init_levels_c;
+
 #ifndef NON_AVX512_SUPPORT
     if (CanUseIntelAVX512()) {
         eb_aom_sad64x128 = eb_aom_sad64x128_avx512;
@@ -1017,25 +1027,17 @@ void setup_rtcd_internal(EbAsm asm_type)
         eb_av1_txb_init_levels = eb_av1_txb_init_levels_avx512;
     }
 #else
-    eb_aom_sad64x128 = eb_aom_sad64x128_c;
     if (flags & HAS_AVX2) eb_aom_sad64x128 = eb_aom_sad64x128_avx2;
-    eb_aom_sad64x16 = eb_aom_sad64x16_c;
     if (flags & HAS_AVX2) eb_aom_sad64x16 = eb_aom_sad64x16_avx2;
-    eb_aom_sad64x32 = eb_aom_sad64x32_c;
     if (flags & HAS_AVX2) eb_aom_sad64x32 = eb_aom_sad64x32_avx2;
-    eb_aom_sad64x64 = eb_aom_sad64x64_c;
     if (flags & HAS_AVX2) eb_aom_sad64x64 = eb_aom_sad64x64_avx2;
-    eb_aom_sad128x128 = eb_aom_sad128x128_c;
     if (flags & HAS_AVX2) eb_aom_sad128x128 = eb_aom_sad128x128_avx2;
-    eb_aom_sad128x128x4d = eb_aom_sad128x128x4d_c;
     if (flags & HAS_AVX2) eb_aom_sad128x128x4d = eb_aom_sad128x128x4d_avx2;
-    eb_aom_sad128x64 = eb_aom_sad128x64_c;
     if (flags & HAS_AVX2) eb_aom_sad128x64 = eb_aom_sad128x64_avx2;
-    eb_aom_sad128x64x4d = eb_aom_sad128x64x4d_c;
     if (flags & HAS_AVX2) eb_aom_sad128x64x4d = eb_aom_sad128x64x4d_avx2;
-    eb_av1_txb_init_levels = eb_av1_txb_init_levels_c;
     if (flags & HAS_AVX2) eb_av1_txb_init_levels = eb_av1_txb_init_levels_avx2;
 #endif // !NON_AVX512_SUPPORT
+
 #if OBMC_FLAG
     eb_aom_highbd_blend_a64_vmask = eb_aom_highbd_blend_a64_vmask_c;
     if (flags & HAS_SSE4_1) eb_aom_highbd_blend_a64_vmask = eb_aom_highbd_blend_a64_vmask_sse4_1;
