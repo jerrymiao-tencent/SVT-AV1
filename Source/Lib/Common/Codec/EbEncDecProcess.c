@@ -2057,6 +2057,7 @@ static void build_cand_block_array(
 uint64_t  pd_level_tab[2][9][2][3] =
 {
     {
+        // Thresholds to use if block is screen content or an I-slice
         {{200,200,200},{200,200,200}},
         {{200,200,200},{200,200,200}},
         {{200,200,200},{200,200,200}},
@@ -2068,6 +2069,7 @@ uint64_t  pd_level_tab[2][9][2][3] =
         {{200,200,200},{200,200,200}},
     } ,
     {
+        // Thresholds to use if block is not screen content or an I-slice
         {{100,10,10},{100,10,10}},
         {{100,10,10},{100,10,10}},
         {{100,10,10},{100,10,10}},
@@ -2090,19 +2092,19 @@ void derive_start_end_depth(
     int8_t *e_depth,
     const BlockGeom * blk_geom) {
 
-    uint8_t depth_offset = sb_size == BLOCK_128X128 ? 0 : 1;
-    int8_t depth = blk_geom->depth + depth_offset;
     uint8_t encode_mode = picture_control_set_ptr->parent_pcs_ptr->enc_mode;
 
     int8_t start_depth = sb_size == BLOCK_128X128 ? 0 : 1;
     int8_t end_depth = 5;
-    int8_t depthp1 = depth + 1 <= end_depth ? depth + 1 : depth;
-    int8_t depthp2 = depth + 2 <= end_depth ? depth + 2 : depth + 1 <= end_depth ? depth + 1 : depth;
-    int8_t depthp3 = depth + 3 <= end_depth ? depth + 3 : depth + 2 <= end_depth ? depth + 2 : depth + 1 <= end_depth ? depth + 1 : depth;
+    int8_t depth = blk_geom->depth + start_depth;
 
-    uint8_t depthm1 = depth - 1 >= start_depth ? depth - 1 : depth;
-    uint8_t depthm2 = depth - 2 >= start_depth ? depth - 2 : depth - 1 >= start_depth ? depth - 1 : depth;
-    uint8_t depthm3 = depth - 3 >= start_depth ? depth - 3 : depth - 2 >= start_depth ? depth - 2 : depth - 1 >= start_depth ? depth - 1 : depth;
+    int8_t depthp1 = MIN(depth + 1, end_depth);
+    int8_t depthp2 = MIN(depth + 2, end_depth);
+    int8_t depthp3 = MIN(depth + 3, end_depth);
+
+    uint8_t depthm1 = MAX(depth - 1, start_depth);
+    uint8_t depthm2 = MAX(depth - 2, start_depth);
+    uint8_t depthm3 = MAX(depth - 3, start_depth);
 
     uint64_t max_distance = 0xFFFFFFFFFFFFFFFF;
 
@@ -2118,42 +2120,42 @@ void derive_start_end_depth(
         max_distance :
         sb_ptr->depth_cost[depthp1] <= sb_ptr->depth_cost[depth] ?
         0 :
-        (ABS((int64_t)sb_ptr->depth_cost[depth] - (int64_t)sb_ptr->depth_cost[depthp1]) * 100) / sb_ptr->depth_cost[depth];
+        (((int64_t)sb_ptr->depth_cost[depthp1] - (int64_t)sb_ptr->depth_cost[depth]) * 100) / sb_ptr->depth_cost[depth];
 
     uint64_t dist_100 =
         sb_ptr->depth_cost[depth] == 0 ?
         max_distance :
         sb_ptr->depth_cost[depthm1] <= sb_ptr->depth_cost[depth] ?
         0 :
-        (ABS((int64_t)sb_ptr->depth_cost[depth] - (int64_t)sb_ptr->depth_cost[depthm1]) * 100) / sb_ptr->depth_cost[depth];
+        (((int64_t)sb_ptr->depth_cost[depthm1] - (int64_t)sb_ptr->depth_cost[depth]) * 100) / sb_ptr->depth_cost[depth];
 
     uint64_t dist_002 =
         sb_ptr->depth_cost[depth] == 0 ?
         max_distance :
         sb_ptr->depth_cost[depthp2] <= sb_ptr->depth_cost[depth] ?
         0 :
-        (ABS((int64_t)sb_ptr->depth_cost[depth] - (int64_t)sb_ptr->depth_cost[depthp2]) * 100) / sb_ptr->depth_cost[depth];
+        (((int64_t)sb_ptr->depth_cost[depthp2] - (int64_t)sb_ptr->depth_cost[depth]) * 100) / sb_ptr->depth_cost[depth];
 
     uint64_t dist_200 =
         sb_ptr->depth_cost[depth] == 0 ?
         max_distance :
         sb_ptr->depth_cost[depthm2] <= sb_ptr->depth_cost[depth] ?
         0 :
-        (ABS((int64_t)sb_ptr->depth_cost[depth] - (int64_t)sb_ptr->depth_cost[depthm2]) * 100) / sb_ptr->depth_cost[depth];
+        (((int64_t)sb_ptr->depth_cost[depthm2] - (int64_t)sb_ptr->depth_cost[depth]) * 100) / sb_ptr->depth_cost[depth];
 
     uint64_t dist_003 =
         sb_ptr->depth_cost[depth] == 0 ?
         max_distance :
         sb_ptr->depth_cost[depthp3] <= sb_ptr->depth_cost[depth] ?
         0 :
-        (ABS((int64_t)sb_ptr->depth_cost[depth] - (int64_t)sb_ptr->depth_cost[depthp3]) * 100) / sb_ptr->depth_cost[depth];
+        (((int64_t)sb_ptr->depth_cost[depthp3] - (int64_t)sb_ptr->depth_cost[depth]) * 100) / sb_ptr->depth_cost[depth];
 
     uint64_t dist_300 =
         sb_ptr->depth_cost[depth] == 0 ?
         max_distance :
         sb_ptr->depth_cost[depthm3] <= sb_ptr->depth_cost[depth] ?
         0 :
-        (ABS((int64_t)sb_ptr->depth_cost[depth] - (int64_t)sb_ptr->depth_cost[depthm3]) * 100) / sb_ptr->depth_cost[depth];
+        (((int64_t)sb_ptr->depth_cost[depthm3] - (int64_t)sb_ptr->depth_cost[depth]) * 100) / sb_ptr->depth_cost[depth];
 
     if (dist_300 < mth03)
         *s_depth = -3;
@@ -2181,12 +2183,21 @@ static void perform_pred_depth_refinement(
     uint32_t             sb_index) {
 
     MdcLcuData *resultsPtr = &picture_control_set_ptr->mdc_sb_array[sb_index];
-    resultsPtr->leaf_count = 0;
     uint32_t  blk_index = 0;
 
-    LargestCodingUnit  *sb_ptr = picture_control_set_ptr->sb_ptr_array[sb_index];
+    // Reset mdc_sb_array data to defaults; it will be updated based on the predicted blocks (stored in md_cu_arr_nsq)
+    while (blk_index < sequence_control_set_ptr->max_block_cnt) {
+        const BlockGeom * blk_geom = get_blk_geom_mds(blk_index);
+        resultsPtr->leaf_data_array[blk_index].consider_block = 0;
+        resultsPtr->leaf_data_array[blk_index].split_flag = blk_geom->sq_size > 4 ? EB_TRUE : EB_FALSE;
+        resultsPtr->leaf_data_array[blk_index].refined_split_flag = blk_geom->sq_size > 4 ? EB_TRUE : EB_FALSE;
+        blk_index++;
+    }
 
-    SbParams *sb_params = &sequence_control_set_ptr->sb_params_array[sb_index];
+    resultsPtr->leaf_count = 0;
+    blk_index = 0;
+
+    LargestCodingUnit  *sb_ptr = picture_control_set_ptr->sb_ptr_array[sb_index];
 
     uint32_t tot_d1_blocks, block_1d_idx;
     EbBool split_flag;
@@ -2212,8 +2223,6 @@ static void perform_pred_depth_refinement(
 
         if (sequence_control_set_ptr->sb_geom[sb_index].block_is_inside_md_scan[blk_index] && is_blk_allowed) {
             if (blk_geom->shape == PART_N) {
-
-
                 if (context_ptr->md_cu_arr_nsq[blk_index].split_flag == EB_FALSE) {
 
                     int8_t s_depth = 0;
@@ -2303,18 +2312,12 @@ static void perform_pred_depth_refinement(
                     }
 
                     // Add block indices of upper depth(s)
-                    if (s_depth != 0) {
+                    if (s_depth != 0)
                         set_parent_to_be_considered(
                             resultsPtr,
                             blk_index,
                             sequence_control_set_ptr->seq_header.sb_size,
                             s_depth);
-
-                        for (block_1d_idx = 0; block_1d_idx < tot_d1_blocks; block_1d_idx++) {
-                            resultsPtr->leaf_data_array[blk_index + block_1d_idx].consider_block = 1;
-                            resultsPtr->leaf_data_array[blk_index + block_1d_idx].refined_split_flag = EB_FALSE;
-                        }
-                    }
 
                     // Add block indices of lower depth(s)
                     if (e_depth != 0)
@@ -2564,7 +2567,7 @@ void* enc_dec_kernel(void *input_ptr)
                             picture_control_set_ptr,
                             context_ptr->md_context);
 
-                        // [PD_PASS_0] Mode Decision
+                        // [PD_PASS_0] Mode Decision - Reduce the total number of partitions to be tested in later stages.
                         // Input : mdc_cu_ptr built @ mdc process (up to 4421)     
                         // Output: md_cu_arr_nsq reduced set of block(s)   
                         mode_decision_sb(
@@ -2578,17 +2581,7 @@ void* enc_dec_kernel(void *input_ptr)
                             context_ptr->ss_mecontext,
                             context_ptr->md_context);
 
-                        // Reset mdc_cu_ptr ( mdc process output will not be used beting this point)
-                        blk_index = 0;
-                        while (blk_index < sequence_control_set_ptr->max_block_cnt) {
-                            const BlockGeom * blk_geom = get_blk_geom_mds(blk_index);
-                            mdc_cu_ptr->leaf_data_array[blk_index].consider_block = 0;
-                            mdc_cu_ptr->leaf_data_array[blk_index].split_flag = blk_geom->sq_size > 4 ? EB_TRUE : EB_FALSE;
-                            mdc_cu_ptr->leaf_data_array[blk_index].refined_split_flag = blk_geom->sq_size > 4 ? EB_TRUE : EB_FALSE;
-                            blk_index++;
-                        }
-
-                        // Perform Pred_0 depth refinement
+                        // Perform Pred_0 depth refinement - Add blocks to be considered in the next stage(s) of PD based on depth cost.
                         perform_pred_depth_refinement(
                             sequence_control_set_ptr,
                             picture_control_set_ptr,
@@ -2622,7 +2615,9 @@ void* enc_dec_kernel(void *input_ptr)
                                 picture_control_set_ptr,
                                 context_ptr->md_context);
 
-                            // [PD_PASS_1] Mode Decision
+                            // [PD_PASS_1] Mode Decision - Further reduce the number of 
+                            // partitions to be considered in later PD stages.  This pass uses more accurate
+                            // info than PD0 to give a better PD estimate.
                             mode_decision_sb(
                                 sequence_control_set_ptr,
                                 picture_control_set_ptr,
@@ -2634,17 +2629,7 @@ void* enc_dec_kernel(void *input_ptr)
                                 context_ptr->ss_mecontext,
                                 context_ptr->md_context);
 
-                            // Reset mdc array ( mdc output will not be used beting this point) - why rest ?
-                            blk_index = 0;
-                            while (blk_index < sequence_control_set_ptr->max_block_cnt) {
-                                const BlockGeom * blk_geom = get_blk_geom_mds(blk_index);
-                                mdc_cu_ptr->leaf_data_array[blk_index].consider_block = 0;
-                                mdc_cu_ptr->leaf_data_array[blk_index].split_flag = blk_geom->sq_size > 4 ? EB_TRUE : EB_FALSE;
-                                mdc_cu_ptr->leaf_data_array[blk_index].refined_split_flag = blk_geom->sq_size > 4 ? EB_TRUE : EB_FALSE;
-                                blk_index++;
-                            }
-
-                            // Perform Pred_1 depth refinement
+                            // Perform Pred_1 depth refinement - Add blocks to be considered in the next stage(s) of PD based on depth cost.
                             perform_pred_depth_refinement(
                                 sequence_control_set_ptr,
                                 picture_control_set_ptr,
@@ -2676,7 +2661,8 @@ void* enc_dec_kernel(void *input_ptr)
                         picture_control_set_ptr,
                         context_ptr->md_context);
 
-                    // [PD_PASS_2] Mode Decision
+                    // [PD_PASS_2] Mode Decision - Obtain the final partitioning decision using more accurate info
+                    // than previous stages.  Reduce the total number of partitions to 1.
 #endif
                     mode_decision_sb(
                         sequence_control_set_ptr,
