@@ -13,6 +13,13 @@
 
 #ifndef NON_AVX512_SUPPORT
 
+// TODO: When calculating conv_params->dst using AVX512 (such as those jnt
+// convolve functions themselves and eb_av1_warp_affine etc.), always leave
+// it twisted in memory, then when it is loaded as input, we don't need to
+// twist it again to get what we want. In this way we eliminate permutation
+// instructions in both sides (both storing and loading).
+// This also applies to AVX2.
+
 SIMD_INLINE void jnt_y_comp_avg_2tap_64_avx512(
     const uint8_t *const src, const __m512i *const coeffs, const __m512i factor,
     const __m512i offset, const __m512i s0, __m512i *const s1,

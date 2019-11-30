@@ -1720,6 +1720,10 @@ void setup_rtcd_internal(EbAsm asm_type)
                     eb_av1_convolve_2d_sr_c,
                     eb_av1_convolve_2d_sr_avx2,
                     eb_av1_convolve_2d_sr_avx512);
+    SET_AVX2_AVX512(eb_av1_convolve_2d_copy_sr,
+                    eb_av1_convolve_2d_copy_sr_c,
+                    eb_av1_convolve_2d_copy_sr_avx2,
+                    eb_av1_convolve_2d_copy_sr_avx512);
     SET_AVX2_AVX512(eb_av1_convolve_x_sr,
                     eb_av1_convolve_x_sr_c,
                     eb_av1_convolve_x_sr_avx2,

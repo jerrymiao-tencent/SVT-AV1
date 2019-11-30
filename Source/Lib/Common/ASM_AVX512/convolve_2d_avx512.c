@@ -1210,7 +1210,6 @@ static INLINE void copy_128(const uint8_t *const src, uint8_t *const dst) {
     copy_64(src + 1 * 64, dst + 1 * 64);
 }
 
-// Even slower than AVX2 version. Don't call.
 void eb_av1_convolve_2d_copy_sr_avx512(
     const uint8_t *src, int32_t src_stride, uint8_t *dst, int32_t dst_stride,
     int32_t w, int32_t h, InterpFilterParams *filter_params_x,
