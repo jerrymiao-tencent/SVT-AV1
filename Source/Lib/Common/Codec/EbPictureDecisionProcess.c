@@ -818,9 +818,18 @@ EbErrorType signal_derivation_multi_processes_oq(
         else if (picture_control_set_ptr->enc_mode == ENC_M0)
             // Use a single-stage PD if or 1st encoding Pass I_SLICE
             picture_control_set_ptr->pic_depth_mode = (picture_control_set_ptr->slice_type == I_SLICE) ? PIC_ALL_DEPTH_MODE : PIC_MULTI_PASS_PD_MODE_1;
+#if MULTI_PASS_M1_BEYOND
+        else if (picture_control_set_ptr->enc_mode <= ENC_M2)
+            // Use a single-stage PD if or 1st encoding Pass I_SLICE
+            picture_control_set_ptr->pic_depth_mode = (picture_control_set_ptr->slice_type == I_SLICE) ? PIC_ALL_DEPTH_MODE : PIC_MULTI_PASS_PD_MODE_2;
 #endif
+#endif
+
+// These are the default settings to use 
+#if !ENABLE_MULTI_PASS_PD || !MULTI_PASS_M1_BEYOND
         else if (picture_control_set_ptr->enc_mode <= ENC_M2)
             picture_control_set_ptr->pic_depth_mode = PIC_ALL_DEPTH_MODE;
+#endif
 
         //Jing: TODO:
         //In M3, sb_sz may be 128x128, and init_sq_non4_block only works for 64x64 sb size
@@ -907,6 +916,15 @@ EbErrorType signal_derivation_multi_processes_oq(
 
         if (MR_MODE)
             picture_control_set_ptr->nsq_search_level = NSQ_SEARCH_FULL;
+#if MULTI_PASS_M1_BEYOND
+        else if (picture_control_set_ptr->pic_depth_mode == PIC_MULTI_PASS_PD_MODE_0 ||
+                 picture_control_set_ptr->pic_depth_mode == PIC_MULTI_PASS_PD_MODE_1 ||
+                 picture_control_set_ptr->pic_depth_mode == PIC_MULTI_PASS_PD_MODE_2 ||
+                 picture_control_set_ptr->pic_depth_mode == PIC_MULTI_PASS_PD_MODE_3 ){
+
+            picture_control_set_ptr->nsq_search_level = NSQ_SEARCH_LEVEL6;
+        }
+#endif
         else if (sc_content_detected)
             if (picture_control_set_ptr->enc_mode <= ENC_M1)
 #if M0_OPT
