@@ -378,7 +378,7 @@ PredictionStructureConfigEntry five_level_hierarchical_pred_struct[] = {
  *                                      0               3  2  4     1     6  5  7                   1  0  2     9     4  3  5       8       8  7  9     6     1  0  2
  *
  **********************************************************************************************************************************************************************************************************************/
-static PredictionStructureConfigEntry six_level_hierarchical_pred_struct[] = {
+ PredictionStructureConfigEntry six_level_hierarchical_pred_struct[] = {
     {
         0, // GOP Index 0 - Temporal Layer
         0, // GOP Index 0 - Decode Order
@@ -1992,6 +1992,13 @@ EbErrorType prediction_structure_group_ctor(PredictionStructureGroup *pred_struc
     uint8_t ref_count_used       = enc_mode <= ENC_M1 ? MAX_REF_IDX : enc_mode <= ENC_M2 ? 2 : 1;
 
     if (ref_count_used > 0 && ref_count_used < MAX_REF_IDX) {
+        for (int gop_i = 1; gop_i < 4; ++gop_i) {
+            for (int i = ref_count_used; i < MAX_REF_IDX; ++i) {
+                three_level_hierarchical_pred_struct[gop_i].ref_list0[i] = 0;
+                three_level_hierarchical_pred_struct[gop_i].ref_list1[i] = 0;
+            }
+        }
+
         for (int gop_i = 1; gop_i < 8; ++gop_i) {
             for (int i = ref_count_used; i < MAX_REF_IDX; ++i) {
                 four_level_hierarchical_pred_struct[gop_i].ref_list0[i] = 0;
@@ -2004,6 +2011,13 @@ EbErrorType prediction_structure_group_ctor(PredictionStructureGroup *pred_struc
                 five_level_hierarchical_pred_struct[gop_i].ref_list0[i] = 0;
                 five_level_hierarchical_pred_struct[gop_i].ref_list1[i] = 0;
             }
+        }
+    }
+
+    for (int gop_i = 1; gop_i < 32; ++gop_i) {
+        for (int i = 1; i < MAX_REF_IDX; ++i) {
+            six_level_hierarchical_pred_struct[gop_i].ref_list0[i] = 0;
+            six_level_hierarchical_pred_struct[gop_i].ref_list1[i] = 0;
         }
     }
 
